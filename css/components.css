@@ -1,0 +1,670 @@
+/* ==========================================================================
+   PLANO HIT — COMPONENTES
+   Peças reutilizáveis em qualquer view: cards com moldura HUD, botões,
+   campos de formulário, badges, switches, toasts, chips de pilar.
+   ========================================================================== */
+
+/* ------------------------------------------------------------------------
+   1. Ícones (dimensão base — overrides pontuais ficam em cada componente)
+   ------------------------------------------------------------------------ */
+
+.icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  stroke: currentColor;
+}
+
+/* ------------------------------------------------------------------------
+   2. Card base + moldura HUD (assinatura visual do produto)
+   Os 4 "cantos de mira" reforçam a leitura tática/HUD sem exagero:
+   aparecem discretos e só ganham destaque no hover/foco do card.
+   ------------------------------------------------------------------------ */
+
+.card {
+  position: relative;
+  background: var(--color-panel);
+  border: var(--border-width) solid var(--color-line);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+}
+
+.hud-corner {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border: 1.5px solid var(--color-text-faint);
+  opacity: 0.5;
+  transition: opacity var(--duration-base) var(--ease-out),
+              border-color var(--duration-base) var(--ease-out);
+  pointer-events: none;
+}
+
+.card:hover .hud-corner {
+  opacity: 0.9;
+}
+
+.hud-corner--tl {
+  top: -1px;
+  left: -1px;
+  border-right: none;
+  border-bottom: none;
+  border-top-left-radius: var(--radius-sm);
+}
+
+.hud-corner--tr {
+  top: -1px;
+  right: -1px;
+  border-left: none;
+  border-bottom: none;
+  border-top-right-radius: var(--radius-sm);
+}
+
+.hud-corner--bl {
+  bottom: -1px;
+  left: -1px;
+  border-right: none;
+  border-top: none;
+  border-bottom-left-radius: var(--radius-sm);
+}
+
+.hud-corner--br {
+  bottom: -1px;
+  right: -1px;
+  border-left: none;
+  border-top: none;
+  border-bottom-right-radius: var(--radius-sm);
+}
+
+/* ------------------------------------------------------------------------
+   3. Botões
+   ------------------------------------------------------------------------ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  height: 46px;
+  padding-inline: var(--space-5);
+  border-radius: var(--radius-md);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  letter-spacing: var(--ls-wide);
+  text-transform: uppercase;
+  transition: background var(--duration-base) var(--ease-out),
+              color var(--duration-base) var(--ease-out),
+              border-color var(--duration-base) var(--ease-out),
+              transform var(--duration-fast) var(--ease-out);
+  white-space: nowrap;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn--block {
+  width: 100%;
+}
+
+.btn--sm {
+  height: 36px;
+  padding-inline: var(--space-4);
+  font-size: var(--fs-xs);
+}
+
+.btn--primary {
+  background: var(--color-tecnico);
+  color: var(--color-void);
+}
+
+.btn--primary:hover {
+  background: #33e2ff;
+}
+
+.btn--ghost {
+  background: transparent;
+  border: var(--border-width) solid var(--color-line);
+  color: var(--color-text-dim);
+}
+
+.btn--ghost:hover {
+  border-color: var(--color-tecnico-line);
+  color: var(--color-text);
+}
+
+.btn--danger {
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+  border: var(--border-width) solid var(--color-danger);
+}
+
+.btn--danger:hover {
+  background: var(--color-danger);
+  color: var(--color-void);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.btn__spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(0, 0, 0, 0.25);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: btn-spin 700ms linear infinite;
+}
+
+.btn--ghost .btn__spinner,
+.btn--danger .btn__spinner {
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-top-color: currentColor;
+}
+
+@keyframes btn-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ------------------------------------------------------------------------
+   4. Campos de formulário
+   ------------------------------------------------------------------------ */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.field__label {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: var(--ls-wider);
+  text-transform: uppercase;
+  color: var(--color-text-dim);
+}
+
+.field__input {
+  height: 46px;
+  padding-inline: var(--space-4);
+  background: var(--color-void);
+  border: var(--border-width) solid var(--color-line);
+  border-radius: var(--radius-md);
+  font-size: var(--fs-base);
+  transition: border-color var(--duration-base) var(--ease-out),
+              box-shadow var(--duration-base) var(--ease-out);
+}
+
+.field__input:focus {
+  border-color: var(--color-tecnico);
+  box-shadow: 0 0 0 3px var(--color-tecnico-soft);
+}
+
+.field__input:disabled {
+  color: var(--color-text-faint);
+  opacity: 0.7;
+}
+
+.field__input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.field__input-wrap .field__input {
+  width: 100%;
+  padding-right: var(--space-8);
+}
+
+.field__toggle-visibility {
+  position: absolute;
+  right: var(--space-3);
+  color: var(--color-text-faint);
+  display: flex;
+  padding: var(--space-1);
+}
+
+.field__toggle-visibility:hover {
+  color: var(--color-text-dim);
+}
+
+.field__toggle-visibility .icon {
+  width: 18px;
+  height: 18px;
+}
+
+.field__error {
+  font-size: var(--fs-xs);
+  color: var(--color-danger);
+  min-height: 1em;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+  margin-bottom: var(--space-4);
+  width: fit-content;
+}
+
+.checkbox input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.checkbox__box {
+  width: 18px;
+  height: 18px;
+  border: var(--border-width) solid var(--color-line);
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+  transition: background var(--duration-fast) var(--ease-out),
+              border-color var(--duration-fast) var(--ease-out);
+}
+
+.checkbox input:checked + .checkbox__box {
+  background: var(--color-tecnico);
+  border-color: var(--color-tecnico);
+}
+
+.checkbox input:focus-visible + .checkbox__box {
+  outline: 2px solid var(--color-tecnico);
+  outline-offset: 2px;
+}
+
+.checkbox__label {
+  font-size: var(--fs-sm);
+  color: var(--color-text-dim);
+}
+
+/* Switch (usado em Configurações para ativar/desativar módulos) */
+.switch {
+  position: relative;
+  display: inline-flex;
+  width: 42px;
+  height: 24px;
+  cursor: pointer;
+  margin-left: auto;
+}
+
+.switch input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.switch__track {
+  position: absolute;
+  inset: 0;
+  background: var(--color-line);
+  border-radius: var(--radius-pill);
+  transition: background var(--duration-base) var(--ease-out);
+}
+
+.switch__track::before {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  background: var(--color-text);
+  border-radius: 50%;
+  transition: transform var(--duration-base) var(--ease-out);
+}
+
+.switch input:checked + .switch__track {
+  background: var(--color-success);
+}
+
+.switch input:checked + .switch__track::before {
+  transform: translateX(18px);
+  background: var(--color-void);
+}
+
+.switch input:focus-visible + .switch__track {
+  outline: 2px solid var(--color-tecnico);
+  outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------------------
+   5. Abas de Autenticação
+   ------------------------------------------------------------------------ */
+
+.auth-tabs {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-6);
+  border-bottom: var(--border-width) solid var(--color-line);
+}
+
+.auth-tab {
+  padding: var(--space-3) var(--space-2);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--color-text-faint);
+  position: relative;
+  transition: color var(--duration-base) var(--ease-out);
+}
+
+.auth-tab::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: transparent;
+  transition: background var(--duration-base) var(--ease-out);
+}
+
+.auth-tab.is-active {
+  color: var(--color-text);
+}
+
+.auth-tab.is-active::after {
+  background: var(--color-tecnico);
+}
+
+.auth-form__alert {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  font-size: var(--fs-sm);
+  margin-bottom: var(--space-4);
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+  border: var(--border-width) solid var(--color-danger);
+}
+
+.auth-form__alert[data-variant="success"] {
+  background: var(--color-success-soft);
+  color: var(--color-success);
+  border-color: var(--color-success);
+}
+
+.auth-form__hint {
+  font-size: var(--fs-xs);
+  color: var(--color-text-faint);
+  text-align: center;
+  margin-top: var(--space-4);
+  line-height: var(--lh-relaxed);
+}
+
+/* ------------------------------------------------------------------------
+   6. Marca / Título Auth
+   ------------------------------------------------------------------------ */
+
+.auth-brand__mark {
+  position: relative;
+  padding: var(--space-6);
+}
+
+.auth-brand__title {
+  font-family: var(--font-display);
+  font-size: var(--fs-3xl);
+  font-weight: 700;
+  letter-spacing: var(--ls-tight);
+  line-height: 1;
+}
+
+.auth-brand__title span {
+  background: var(--gradient-signal);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.auth-brand__subtitle {
+  margin-top: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: var(--ls-wider);
+  text-transform: uppercase;
+  color: var(--color-text-faint);
+}
+
+.auth-brand__desc {
+  color: var(--color-text-dim);
+  line-height: var(--lh-relaxed);
+  max-width: 46ch;
+}
+
+.auth-pillars {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.auth-pillars__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  border: var(--border-width) solid var(--color-line);
+}
+
+.auth-pillars__item .icon {
+  width: 16px;
+  height: 16px;
+}
+
+.auth-pillars__item--individual {
+  color: var(--color-individual);
+  border-color: var(--color-individual-line);
+  background: var(--color-individual-soft);
+}
+
+.auth-pillars__item--tecnico {
+  color: var(--color-tecnico);
+  border-color: var(--color-tecnico-line);
+  background: var(--color-tecnico-soft);
+}
+
+.auth-pillars__item--humano {
+  color: var(--color-humano);
+  border-color: var(--color-humano-line);
+  background: var(--color-humano-soft);
+}
+
+/* ------------------------------------------------------------------------
+   7. Sidebar — marca, chips de pilar, usuário
+   ------------------------------------------------------------------------ */
+
+.sidebar__brand-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: var(--gradient-signal);
+  color: var(--color-void);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--fs-xs);
+}
+
+.sidebar__brand-name {
+  font-family: var(--font-display);
+  font-size: var(--fs-md);
+  font-weight: 600;
+}
+
+.sidebar__brand-name strong {
+  color: var(--color-tecnico);
+}
+
+.pillar-chip {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-2);
+  border-radius: var(--radius-md);
+  font-size: var(--fs-xs);
+}
+
+.pillar-chip .icon {
+  width: 15px;
+  height: 15px;
+}
+
+.pillar-chip__label {
+  flex: 1;
+  color: var(--color-text-dim);
+}
+
+.pillar-chip__value {
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+
+.pillar-chip--individual .icon,
+.pillar-chip--individual .pillar-chip__value { color: var(--color-individual); }
+.pillar-chip--tecnico .icon,
+.pillar-chip--tecnico .pillar-chip__value { color: var(--color-tecnico); }
+.pillar-chip--humano .icon,
+.pillar-chip--humano .pillar-chip__value { color: var(--color-humano); }
+
+.sidebar__user-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.sidebar__user-name {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar__user-email {
+  font-size: var(--fs-xs);
+  color: var(--color-text-faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar__logout {
+  color: var(--color-text-faint);
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+}
+
+.sidebar__logout:hover {
+  color: var(--color-danger);
+  background: var(--color-danger-soft);
+}
+
+.sidebar__logout .icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* ------------------------------------------------------------------------
+   8. Badge de sequência (streak)
+   ------------------------------------------------------------------------ */
+
+.streak-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-pill);
+  background: var(--color-warning-soft);
+  color: var(--color-warning);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  font-family: var(--font-mono);
+}
+
+.streak-badge .icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* ------------------------------------------------------------------------
+   9. Toasts
+   ------------------------------------------------------------------------ */
+
+.toast-container {
+  position: fixed;
+  top: var(--space-5);
+  right: var(--space-5);
+  left: var(--space-5);
+  z-index: var(--z-toast);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  pointer-events: none;
+}
+
+@media (min-width: 640px) {
+  .toast-container {
+    left: auto;
+    width: 340px;
+  }
+}
+
+.toast {
+  pointer-events: auto;
+  background: var(--color-panel-raised);
+  border: var(--border-width) solid var(--color-line);
+  border-left: 3px solid var(--color-tecnico);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--fs-sm);
+  box-shadow: var(--shadow-md);
+  animation: toast-enter var(--duration-base) var(--ease-out);
+}
+
+.toast[data-variant="success"] { border-left-color: var(--color-success); }
+.toast[data-variant="danger"]  { border-left-color: var(--color-danger); }
+.toast[data-variant="warning"] { border-left-color: var(--color-warning); }
+
+@keyframes toast-enter {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ------------------------------------------------------------------------
+   10. Estado vazio
+   ------------------------------------------------------------------------ */
+
+.empty-state {
+  text-align: center;
+  padding: var(--space-8) var(--space-4);
+  color: var(--color-text-dim);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+/* ------------------------------------------------------------------------
+   11. Mini dots (indicadores compactos de pilar em listas)
+   ------------------------------------------------------------------------ */
+
+.mini-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.mini-dot--individual { background: var(--color-individual); }
+.mini-dot--tecnico    { background: var(--color-tecnico); }
+.mini-dot--humano     { background: var(--color-humano); }
