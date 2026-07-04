@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0A0E14">
+  <meta name="description" content="Plano HIT — Sistema modular de alta performance dividido em 3 pilares: Individual, Técnico e Humano.">
+  <title>Plano HIT — Sistema de Alta Performance</title>
+
+  <!-- Google Fonts: Rajdhani (display), Inter (body), JetBrains Mono (dados) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Estilos (arquitetura em camadas) -->
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/views.css">
+</head>
+<body>
+
+  <!-- ==========================================================
+       SPRITE SVG — ícones inline (sem dependência externa)
+       ========================================================== -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <symbol id="icon-dashboard" viewBox="0 0 24 24">
+        <path d="M4 13h6V4H4v9zm0 7h6v-5H4v5zm10 0h6V11h-6v9zm0-16v5h6V4h-6z" fill="currentColor"/>
+      </symbol>
+      <symbol id="icon-history" viewBox="0 0 24 24">
+        <path d="M13 3a9 9 0 1 0 9 9h-2a7 7 0 1 1-7-7V3z" fill="currentColor"/>
+        <path d="M12 5v6l4 2" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+        <path d="M4 3v4h4" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </symbol>
+      <symbol id="icon-settings" viewBox="0 0 24 24">
+        <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" fill="none" stroke="currentColor" stroke-width="1.6"/>
+        <path d="M19.4 13a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V19a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 17.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 13a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 6.68a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 2.6a1.65 1.65 0 0 0 1-1.51V1a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 6.6c.13.62.6 1.13 1.24 1.3.24.06.49.1.75.1H22a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </symbol>
+      <symbol id="icon-individual" viewBox="0 0 24 24">
+        <circle cx="12" cy="8" r="3.4" fill="none" stroke="currentColor" stroke-width="1.6"/>
+        <path d="M5 20c0-3.6 3.1-6.2 7-6.2s7 2.6 7 6.2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      </symbol>
+      <symbol id="icon-tecnico" viewBox="0 0 24 24">
+        <path d="M9 4 3 12l6 8M15 4l6 8-6 8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </symbol>
+      <symbol id="icon-humano" viewBox="0 0 24 24">
+        <path d="M12 20s-7-4.35-9.3-8.8C1.2 8 3 5 6.3 5c1.9 0 3.3 1 4.7 2.7C12.4 6 13.8 5 15.7 5 19 5 20.8 8 19.3 11.2 17 15.65 12 20 12 20z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+      </symbol>
+      <symbol id="icon-chevron-left" viewBox="0 0 24 24">
+        <path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </symbol>
+      <symbol id="icon-chevron-right" viewBox="0 0 24 24">
+        <path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </symbol>
+      <symbol id="icon-check" viewBox="0 0 24 24">
+        <path d="M4 12.5l5 5L20 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </symbol>
+      <symbol id="icon-logout" viewBox="0 0 24 24">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </symbol>
+      <symbol id="icon-flame" viewBox="0 0 24 24">
+        <path d="M12 2s-1 3-4 5.5C5 10 4 12.5 4 15a8 8 0 0 0 16 0c0-2.5-1-5-4-7.5C13 5 12 2 12 2z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+      </symbol>
+      <symbol id="icon-eye" viewBox="0 0 24 24">
+        <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <!-- ==========================================================
+       ROOT DA APLICAÇÃO
+       ========================================================== -->
+  <div id="app" class="app" data-authenticated="false">
+
+    <!-- Overlay de scanline / ruído ambiente (assinatura visual, não interativo) -->
+    <div class="ambient-scanline" aria-hidden="true"></div>
+
+    <!-- ============================================================
+         VIEW: AUTENTICAÇÃO (Login / Registro)
+         Visível quando não há token válido em sessionStorage
+         ============================================================ -->
+    <section id="view-auth" class="view view-auth" data-view="auth" aria-hidden="false">
+      <div class="auth-grid">
+
+        <div class="auth-brand">
+          <div class="auth-brand__mark">
+            <span class="hud-corner hud-corner--tl"></span>
+            <span class="hud-corner hud-corner--tr"></span>
+            <span class="hud-corner hud-corner--bl"></span>
+            <span class="hud-corner hud-corner--br"></span>
+            <h1 class="auth-brand__title">PLANO<span>HIT</span></h1>
+            <p class="auth-brand__subtitle">High Intensity Tracking</p>
+          </div>
+
+          <ul class="auth-pillars" aria-label="Pilares do sistema">
+            <li class="auth-pillars__item auth-pillars__item--individual">
+              <svg class="icon"><use href="#icon-individual"></use></svg>
+              <span>Individual</span>
+            </li>
+            <li class="auth-pillars__item auth-pillars__item--tecnico">
+              <svg class="icon"><use href="#icon-tecnico"></use></svg>
+              <span>Técnico</span>
+            </li>
+            <li class="auth-pillars__item auth-pillars__item--humano">
+              <svg class="icon"><use href="#icon-humano"></use></svg>
+              <span>Humano</span>
+            </li>
+          </ul>
+
+          <p class="auth-brand__desc">Três pilares. Um sistema de consistência. Acompanhe sua performance diária com precisão tática.</p>
+        </div>
+
+        <div class="auth-panel">
+          <div class="auth-tabs" role="tablist" aria-label="Alternar entre login e registro">
+            <button class="auth-tab is-active" id="tab-login" role="tab" aria-selected="true" aria-controls="form-login" data-auth-tab="login">Entrar</button>
+            <button class="auth-tab" id="tab-register" role="tab" aria-selected="false" aria-controls="form-register" data-auth-tab="register">Criar conta</button>
+          </div>
+
+          <!-- Formulário de Login -->
+          <form id="form-login" class="auth-form" data-auth-form="login" role="tabpanel" aria-labelledby="tab-login" novalidate>
+            <div class="field">
+              <label for="login-email" class="field__label">E-mail</label>
+              <input type="email" id="login-email" name="email" class="field__input" placeholder="voce@exemplo.com" autocomplete="email" required>
+              <span class="field__error" data-error-for="login-email"></span>
+            </div>
+
+            <div class="field">
+              <label for="login-password" class="field__label">Senha</label>
+              <div class="field__input-wrap">
+                <input type="password" id="login-password" name="password" class="field__input" placeholder="••••••••" autocomplete="current-password" required minlength="6">
+                <button type="button" class="field__toggle-visibility" data-toggle-password="login-password" aria-label="Mostrar senha">
+                  <svg class="icon"><use href="#icon-eye"></use></svg>
+                </button>
+              </div>
+              <span class="field__error" data-error-for="login-password"></span>
+            </div>
+
+            <label class="checkbox">
+              <input type="checkbox" id="login-remember" name="remember">
+              <span class="checkbox__box"></span>
+              <span class="checkbox__label">Manter sessão ativa</span>
+            </label>
+
+            <div class="auth-form__alert" data-role="auth-alert" hidden></div>
+
+            <button type="submit" class="btn btn--primary btn--block" data-role="submit-login">
+              <span class="btn__label">Acessar o sistema</span>
+              <span class="btn__spinner" hidden></span>
+            </button>
+
+            <p class="auth-form__hint">Ambiente de demonstração — qualquer e-mail e senha (mín. 6 caracteres) geram uma sessão simulada.</p>
+          </form>
+
+          <!-- Formulário de Registro -->
+          <form id="form-register" class="auth-form" data-auth-form="register" role="tabpanel" aria-labelledby="tab-register" hidden novalidate>
+            <div class="field">
+              <label for="register-name" class="field__label">Nome completo</label>
+              <input type="text" id="register-name" name="name" class="field__input" placeholder="Seu nome" autocomplete="name" required>
+              <span class="field__error" data-error-for="register-name"></span>
+            </div>
+
+            <div class="field">
+              <label for="register-email" class="field__label">E-mail</label>
+              <input type="email" id="register-email" name="email" class="field__input" placeholder="voce@exemplo.com" autocomplete="email" required>
+              <span class="field__error" data-error-for="register-email"></span>
+            </div>
+
+            <div class="field">
+              <label for="register-password" class="field__label">Senha</label>
+              <div class="field__input-wrap">
+                <input type="password" id="register-password" name="password" class="field__input" placeholder="Mínimo 6 caracteres" autocomplete="new-password" required minlength="6">
+                <button type="button" class="field__toggle-visibility" data-toggle-password="register-password" aria-label="Mostrar senha">
+                  <svg class="icon"><use href="#icon-eye"></use></svg>
+                </button>
+              </div>
+              <span class="field__error" data-error-for="register-password"></span>
+            </div>
+
+            <div class="field">
+              <label for="register-password-confirm" class="field__label">Confirmar senha</label>
+              <input type="password" id="register-password-confirm" name="passwordConfirm" class="field__input" placeholder="Repita a senha" autocomplete="new-password" required minlength="6">
+              <span class="field__error" data-error-for="register-password-confirm"></span>
+            </div>
+
+            <div class="auth-form__alert" data-role="auth-alert" hidden></div>
+
+            <button type="submit" class="btn btn--primary btn--block" data-role="submit-register">
+              <span class="btn__label">Criar minha conta</span>
+              <span class="btn__spinner" hidden></span>
+            </button>
+          </form>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SHELL AUTENTICADO (Sidebar + Tab Bar + Conteúdo)
+         Visível apenas quando existe token válido
+         ============================================================ -->
+    <div id="shell" class="shell" hidden>
+
+      <!-- Sidebar (Desktop) -->
+      <aside class="sidebar" aria-label="Navegação principal">
+        <div class="sidebar__brand">
+          <span class="sidebar__brand-mark">HIT</span>
+          <span class="sidebar__brand-name">Plano<strong>HIT</strong></span>
+        </div>
+
+        <nav class="sidebar__nav" aria-label="Seções do sistema">
+          <button class="sidebar__link is-active" data-nav-target="dashboard">
+            <svg class="icon"><use href="#icon-dashboard"></use></svg>
+            <span>Dashboard do Dia</span>
+          </button>
+          <button class="sidebar__link" data-nav-target="history">
+            <svg class="icon"><use href="#icon-history"></use></svg>
+            <span>Histórico Global</span>
+          </button>
+          <button class="sidebar__link" data-nav-target="settings">
+            <svg class="icon"><use href="#icon-settings"></use></svg>
+            <span>Configurações</span>
+          </button>
+        </nav>
+
+        <div class="sidebar__pillars" aria-label="Resumo dos pilares">
+          <div class="pillar-chip pillar-chip--individual" data-pillar-chip="individual">
+            <svg class="icon"><use href="#icon-individual"></use></svg>
+            <span class="pillar-chip__label">Individual</span>
+            <span class="pillar-chip__value" data-pillar-value="individual">0%</span>
+          </div>
+          <div class="pillar-chip pillar-chip--tecnico" data-pillar-chip="tecnico">
+            <svg class="icon"><use href="#icon-tecnico"></use></svg>
+            <span class="pillar-chip__label">Técnico</span>
+            <span class="pillar-chip__value" data-pillar-value="tecnico">0%</span>
+          </div>
+          <div class="pillar-chip pillar-chip--humano" data-pillar-chip="humano">
+            <svg class="icon"><use href="#icon-humano"></use></svg>
+            <span class="pillar-chip__label">Humano</span>
+            <span class="pillar-chip__value" data-pillar-value="humano">0%</span>
+          </div>
+        </div>
+
+        <div class="sidebar__user">
+          <div class="sidebar__user-info">
+            <span class="sidebar__user-name" data-role="user-name">—</span>
+            <span class="sidebar__user-email" data-role="user-email">—</span>
+          </div>
+          <button class="sidebar__logout" data-role="logout" aria-label="Sair da conta">
+            <svg class="icon"><use href="#icon-logout"></use></svg>
+          </button>
+        </div>
+      </aside>
+
+      <!-- Conteúdo principal -->
+      <main class="content">
+
+        <!-- Header topo (mobile + desktop) -->
+        <header class="content__header">
+          <div class="content__header-title">
+            <h2 data-role="view-title">Dashboard do Dia</h2>
+            <p data-role="view-subtitle">Acompanhe sua performance de hoje</p>
+          </div>
+          <div class="content__header-actions">
+            <span class="streak-badge" data-role="streak-badge">
+              <svg class="icon"><use href="#icon-flame"></use></svg>
+              <span data-role="streak-count">0</span> dias
+            </span>
+          </div>
+        </header>
+
+        <!-- ============================================================
+             VIEW: DASHBOARD DO DIA
+             ============================================================ -->
+        <section id="view-dashboard" class="view view-dashboard" data-view="dashboard">
+
+          <!-- Navegação temporal -->
+          <div class="date-nav">
+            <button class="date-nav__btn" data-role="date-prev" aria-label="Dia anterior">
+              <svg class="icon"><use href="#icon-chevron-left"></use></svg>
+            </button>
+            <div class="date-nav__current">
+              <span class="date-nav__label" data-role="date-label">Hoje</span>
+              <span class="date-nav__full" data-role="date-full">—</span>
+            </div>
+            <button class="date-nav__btn" data-role="date-next" aria-label="Próximo dia">
+              <svg class="icon"><use href="#icon-chevron-right"></use></svg>
+            </button>
+            <button class="date-nav__today" data-role="date-today" hidden>Hoje</button>
+          </div>
+
+          <!-- Score geral do dia -->
+          <div class="day-score card">
+            <span class="hud-corner hud-corner--tl"></span>
+            <span class="hud-corner hud-corner--tr"></span>
+            <span class="hud-corner hud-corner--bl"></span>
+            <span class="hud-corner hud-corner--br"></span>
+            <div class="day-score__ring" data-role="day-score-ring">
+              <svg viewBox="0 0 120 120" class="ring-svg">
+                <circle cx="60" cy="60" r="52" class="ring-svg__track"></circle>
+                <circle cx="60" cy="60" r="52" class="ring-svg__progress" data-role="day-score-progress"></circle>
+              </svg>
+              <div class="day-score__value">
+                <strong data-role="day-score-value">0%</strong>
+                <span>completo</span>
+              </div>
+            </div>
+            <div class="day-score__breakdown" data-role="day-score-breakdown">
+              <!-- preenchido via JS: barra por pilar -->
+            </div>
+          </div>
+
+          <!-- Grid de pilares do dia -->
+          <div class="pillars-grid" data-role="pillars-grid">
+            <!-- Cada pilar (Individual / Técnico / Humano) será renderizado aqui via JS,
+                 com sua lista de hábitos/tarefas do dia e checkboxes de conclusão -->
+            <template id="tpl-pillar-card">
+              <article class="pillar-card card">
+                <span class="hud-corner hud-corner--tl"></span>
+                <span class="hud-corner hud-corner--br"></span>
+                <header class="pillar-card__header">
+                  <svg class="icon pillar-card__icon"><use href=""></use></svg>
+                  <h3 class="pillar-card__title"></h3>
+                  <span class="pillar-card__progress"></span>
+                </header>
+                <ul class="pillar-card__list"></ul>
+              </article>
+            </template>
+            <template id="tpl-pillar-task">
+              <li class="task-item">
+                <button class="task-item__check" type="button">
+                  <svg class="icon"><use href="#icon-check"></use></svg>
+                </button>
+                <span class="task-item__label"></span>
+              </li>
+            </template>
+          </div>
+
+          <div class="empty-state" data-role="dashboard-empty" hidden>
+            <p>Nenhuma tarefa configurada para os pilares ainda.</p>
+            <button class="btn btn--ghost" data-nav-target="settings">Configurar módulos</button>
+          </div>
+
+        </section>
+
+        <!-- ============================================================
+             VIEW: HISTÓRICO GLOBAL / MAPA DE CALOR DE CONSISTÊNCIA
+             ============================================================ -->
+        <section id="view-history" class="view view-history" data-view="history" hidden>
+
+          <div class="history-summary">
+            <div class="stat-card card">
+              <span class="stat-card__label">Sequência atual</span>
+              <strong class="stat-card__value" data-role="stat-current-streak">0</strong>
+              <span class="stat-card__unit">dias</span>
+            </div>
+            <div class="stat-card card">
+              <span class="stat-card__label">Maior sequência</span>
+              <strong class="stat-card__value" data-role="stat-best-streak">0</strong>
+              <span class="stat-card__unit">dias</span>
+            </div>
+            <div class="stat-card card">
+              <span class="stat-card__label">Consistência (90d)</span>
+              <strong class="stat-card__value" data-role="stat-consistency">0%</strong>
+              <span class="stat-card__unit">média</span>
+            </div>
+          </div>
+
+          <div class="heatmap card">
+            <span class="hud-corner hud-corner--tl"></span>
+            <span class="hud-corner hud-corner--tr"></span>
+            <header class="heatmap__header">
+              <h3>Mapa de Consistência</h3>
+              <div class="heatmap__legend">
+                <span>Menos</span>
+                <span class="heatmap__swatch" data-level="0"></span>
+                <span class="heatmap__swatch" data-level="1"></span>
+                <span class="heatmap__swatch" data-level="2"></span>
+                <span class="heatmap__swatch" data-level="3"></span>
+                <span class="heatmap__swatch" data-level="4"></span>
+                <span>Mais</span>
+              </div>
+            </header>
+            <div class="heatmap__grid" data-role="heatmap-grid" role="img" aria-label="Mapa de calor de consistência dos últimos meses">
+              <!-- células geradas via JS -->
+            </div>
+            <template id="tpl-heatmap-cell">
+              <span class="heatmap__cell" data-level="0" tabindex="0"></span>
+            </template>
+          </div>
+
+          <div class="history-list card">
+            <header class="history-list__header">
+              <h3>Registros recentes</h3>
+            </header>
+            <ul class="history-list__items" data-role="history-list">
+              <!-- itens gerados via JS -->
+            </ul>
+            <template id="tpl-history-item">
+              <li class="history-list__item">
+                <div class="history-list__date">
+                  <strong></strong>
+                  <span></span>
+                </div>
+                <div class="history-list__pillars">
+                  <span class="mini-dot mini-dot--individual"></span>
+                  <span class="mini-dot mini-dot--tecnico"></span>
+                  <span class="mini-dot mini-dot--humano"></span>
+                </div>
+                <span class="history-list__score"></span>
+              </li>
+            </template>
+            <div class="empty-state" data-role="history-empty" hidden>
+              <p>Ainda não há histórico registrado. Volte ao Dashboard e complete suas tarefas do dia.</p>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- ============================================================
+             VIEW: CONFIGURAÇÕES (Escopo dos Módulos)
+             ============================================================ -->
+        <section id="view-settings" class="view view-settings" data-view="settings" hidden>
+
+          <div class="settings-section card">
+            <span class="hud-corner hud-corner--tl"></span>
+            <span class="hud-corner hud-corner--br"></span>
+            <header class="settings-section__header">
+              <h3>Perfil</h3>
+            </header>
+            <div class="field">
+              <label for="settings-name" class="field__label">Nome</label>
+              <input type="text" id="settings-name" class="field__input" data-role="settings-name">
+            </div>
+            <div class="field">
+              <label for="settings-email" class="field__label">E-mail</label>
+              <input type="email" id="settings-email" class="field__input" data-role="settings-email" disabled>
+            </div>
+          </div>
+
+          <div class="settings-section card" data-role="module-scope-individual">
+            <span class="hud-corner hud-corner--tl"></span>
+            <span class="hud-corner hud-corner--br"></span>
+            <header class="settings-section__header settings-section__header--individual">
+              <svg class="icon"><use href="#icon-individual"></use></svg>
+              <h3>Pilar Individual</h3>
+              <label class="switch">
+                <input type="checkbox" data-role="module-toggle" data-module="individual" checked>
+                <span class="switch__track"></span>
+              </label>
+            </header>
+            <ul class="settings-tasklist" data-role="settings-tasklist" data-module="individual">
+              <!-- lista de tarefas configuráveis do pilar, gerada via JS -->
+            </ul>
+            <button class="btn btn--ghost btn--sm" data-role="add-task" data-module="individual">+ Adicionar tarefa</button>
+          </div>
+
+          <div class="settings-section card" data-role="module-scope-tecnico">
+            <span class="hud-corner hud-corner--tl"></span>
+            <span class="hud-corner hud-corner--br"></span>
+            <header class="settings-section__header settings-section__header--tecnico">
+              <svg class="icon"><use href="#icon-tecnico"></use></svg>
+              <h3>Pilar Técnico</h3>
+              <label class="switch">
+                <input type="checkbox" data-role="module-toggle" data-module="tecnico" checked>
+                <span class="switch__track"></span>
+              </label>
+            </header>
+            <ul class="settings-tasklist" data-role="settings-tasklist" data-module="tecnico"></ul>
+            <button class="btn btn--ghost btn--sm" data-role="add-task" data-module="tecnico">+ Adicionar tarefa</button>
+          </div>
+
+          <div class="settings-section card" data-role="module-scope-humano">
+            <span class="hud-corner hud-corner--tl"></span>
+            <span class="hud-corner hud-corner--br"></span>
+            <header class="settings-section__header settings-section__header--humano">
+              <svg class="icon"><use href="#icon-humano"></use></svg>
+              <h3>Pilar Humano</h3>
+              <label class="switch">
+                <input type="checkbox" data-role="module-toggle" data-module="humano" checked>
+                <span class="switch__track"></span>
+              </label>
+            </header>
+            <ul class="settings-tasklist" data-role="settings-tasklist" data-module="humano"></ul>
+            <button class="btn btn--ghost btn--sm" data-role="add-task" data-module="humano">+ Adicionar tarefa</button>
+          </div>
+
+          <template id="tpl-settings-task">
+            <li class="settings-tasklist__item">
+              <input type="text" class="settings-tasklist__input" value="">
+              <button type="button" class="settings-tasklist__remove" aria-label="Remover tarefa">&times;</button>
+            </li>
+          </template>
+
+          <div class="settings-section card settings-section--danger">
+            <header class="settings-section__header">
+              <h3>Zona de risco</h3>
+            </header>
+            <p class="settings-section__desc">Esta ação apaga permanentemente todo o histórico salvo neste navegador.</p>
+            <button class="btn btn--danger" data-role="reset-data">Redefinir todos os dados</button>
+          </div>
+
+        </section>
+
+      </main>
+
+      <!-- Tab Bar (Mobile) -->
+      <nav class="tabbar" aria-label="Navegação principal (mobile)">
+        <button class="tabbar__link is-active" data-nav-target="dashboard">
+          <svg class="icon"><use href="#icon-dashboard"></use></svg>
+          <span>Hoje</span>
+        </button>
+        <button class="tabbar__link" data-nav-target="history">
+          <svg class="icon"><use href="#icon-history"></use></svg>
+          <span>Histórico</span>
+        </button>
+        <button class="tabbar__link" data-nav-target="settings">
+          <svg class="icon"><use href="#icon-settings"></use></svg>
+          <span>Ajustes</span>
+        </button>
+      </nav>
+
+    </div>
+
+    <!-- Toast global de feedback -->
+    <div class="toast-container" data-role="toast-container" aria-live="polite"></div>
+
+  </div>
+
+  <!-- ==========================================================
+       SCRIPTS (ordem de dependência: config → storage → auth →
+       state → router → components → views → app)
+       ========================================================== -->
+  <script src="js/config.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/router.js"></script>
+  <script src="js/components/sidebar.js"></script>
+  <script src="js/components/tabbar.js"></script>
+  <script src="js/components/heatmap.js"></script>
+  <script src="js/views/auth.view.js"></script>
+  <script src="js/views/dashboard.view.js"></script>
+  <script src="js/views/history.view.js"></script>
+  <script src="js/views/settings.view.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
