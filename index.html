@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#0A0E14">
-  <meta name="description" content="Plano HIT — Sistema modular de alta performance dividido em 3 pilares: Individual, Técnico e Humano.">
-  <title>Plano HIT — Sistema de Alta Performance</title>
+  <meta name="description" content="Plano HIT — Simulador de Engenharia de Metas. Defina um objetivo, divida-o em módulos executáveis e acompanhe a probabilidade de sucesso em tempo real.">
+  <title>Plano HIT — Simulador de Engenharia de Metas</title>
 
   <!-- Google Fonts: Rajdhani (display), Inter (body), JetBrains Mono (dados) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -67,6 +67,29 @@
         <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" fill="none" stroke="currentColor" stroke-width="1.5"/>
         <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.5"/>
       </symbol>
+      <!-- Novos ícones — conceito "Simulador de Engenharia de Metas" -->
+      <symbol id="icon-target" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <circle cx="12" cy="12" r="1.4" fill="currentColor"/>
+      </symbol>
+      <symbol id="icon-clipboard" viewBox="0 0 24 24">
+        <rect x="5" y="4" width="14" height="17" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="9" y="2.5" width="6" height="3" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M8 11h8M8 15h8M8 19h5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+      </symbol>
+      <symbol id="icon-trend" viewBox="0 0 24 24">
+        <path d="M3 17l6-6 4 4 8-9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M15 6h6v6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </symbol>
+      <symbol id="icon-calendar" viewBox="0 0 24 24">
+        <rect x="3.5" y="5" width="17" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M3.5 10h17M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </symbol>
+      <symbol id="icon-layers" viewBox="0 0 24 24">
+        <path d="M12 3l9 5-9 5-9-5 9-5z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+        <path d="M3 13l9 5 9-5M3 18l9 5 9-5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+      </symbol>
     </defs>
   </svg>
 
@@ -92,25 +115,25 @@
             <span class="hud-corner hud-corner--bl"></span>
             <span class="hud-corner hud-corner--br"></span>
             <h1 class="auth-brand__title">PLANO<span>HIT</span></h1>
-            <p class="auth-brand__subtitle">High Intensity Tracking</p>
+            <p class="auth-brand__subtitle">Simulador de Engenharia de Metas</p>
           </div>
 
-          <ul class="auth-pillars" aria-label="Pilares do sistema">
+          <ul class="auth-pillars" aria-label="Como o sistema funciona">
             <li class="auth-pillars__item auth-pillars__item--individual">
-              <svg class="icon"><use href="#icon-individual"></use></svg>
-              <span>Individual</span>
+              <svg class="icon"><use href="#icon-target"></use></svg>
+              <span>Objetivo</span>
             </li>
             <li class="auth-pillars__item auth-pillars__item--tecnico">
-              <svg class="icon"><use href="#icon-tecnico"></use></svg>
-              <span>Técnico</span>
+              <svg class="icon"><use href="#icon-clipboard"></use></svg>
+              <span>Plano de Treinamento</span>
             </li>
             <li class="auth-pillars__item auth-pillars__item--humano">
-              <svg class="icon"><use href="#icon-humano"></use></svg>
-              <span>Humano</span>
+              <svg class="icon"><use href="#icon-trend"></use></svg>
+              <span>Probabilidade de Sucesso</span>
             </li>
           </ul>
 
-          <p class="auth-brand__desc">Três pilares. Um sistema de consistência. Acompanhe sua performance diária com precisão tática.</p>
+          <p class="auth-brand__desc">Defina um objetivo claro e um prazo estimado. O sistema divide o tempo em Definições Modulares e recalcula, todos os dias, a probabilidade real de você concluir a meta no prazo — com base no seu ritmo de execução, não em boas intenções.</p>
         </div>
 
         <div class="auth-panel">
@@ -147,7 +170,7 @@
             <div class="auth-form__alert" data-role="auth-alert" hidden></div>
 
             <button type="submit" class="btn btn--primary btn--block" data-role="submit-login">
-              <span class="btn__label">Acessar o sistema</span>
+              <span class="btn__label">Acessar o simulador</span>
               <span class="btn__spinner" hidden></span>
             </button>
 
@@ -213,11 +236,11 @@
         <nav class="sidebar__nav" aria-label="Seções do sistema">
           <button class="sidebar__link is-active" data-nav-target="dashboard">
             <svg class="icon"><use href="#icon-dashboard"></use></svg>
-            <span>Dashboard do Dia</span>
+            <span>Painel Preditivo</span>
           </button>
           <button class="sidebar__link" data-nav-target="history">
             <svg class="icon"><use href="#icon-history"></use></svg>
-            <span>Histórico Global</span>
+            <span>Histórico de Execução</span>
           </button>
           <button class="sidebar__link" data-nav-target="settings">
             <svg class="icon"><use href="#icon-settings"></use></svg>
@@ -225,7 +248,7 @@
           </button>
         </nav>
 
-        <div class="sidebar__pillars" aria-label="Resumo dos pilares">
+        <div class="sidebar__pillars" aria-label="Frentes do Plano de Treinamento">
           <div class="pillar-chip pillar-chip--individual" data-pillar-chip="individual">
             <svg class="icon"><use href="#icon-individual"></use></svg>
             <span class="pillar-chip__label">Individual</span>
@@ -260,19 +283,19 @@
         <!-- Header topo (mobile + desktop) -->
         <header class="content__header">
           <div class="content__header-title">
-            <h2 data-role="view-title">Dashboard do Dia</h2>
-            <p data-role="view-subtitle">Acompanhe sua performance de hoje</p>
+            <h2 data-role="view-title">Painel Preditivo</h2>
+            <p data-role="view-subtitle">Probabilidade de sucesso do seu objetivo, calculada em tempo real</p>
           </div>
           <div class="content__header-actions">
             <span class="streak-badge" data-role="streak-badge">
               <svg class="icon"><use href="#icon-flame"></use></svg>
-              <span data-role="streak-count">0</span> dias
+              <span data-role="streak-count">0</span> dias de execução
             </span>
           </div>
         </header>
 
         <!-- ============================================================
-             VIEW: DASHBOARD DO DIA
+             VIEW: PAINEL PREDITIVO (ex-"Dashboard do Dia")
              ============================================================ -->
         <section id="view-dashboard" class="view view-dashboard" data-view="dashboard">
 
@@ -291,31 +314,107 @@
             <button class="date-nav__today" data-role="date-today" hidden>Hoje</button>
           </div>
 
-          <!-- Score geral do dia -->
-          <div class="day-score card">
+          <!-- ESTADO VAZIO: nenhum Objetivo configurado ainda -->
+          <div class="empty-state card" data-role="goal-setup-empty" hidden>
+            <span class="hud-corner hud-corner--tl"></span>
+            <span class="hud-corner hud-corner--br"></span>
+            <svg class="icon" style="width:32px;height:32px;"><use href="#icon-target"></use></svg>
+            <p>Nenhum Objetivo definido ainda. O Painel Preditivo só calcula a Probabilidade de Sucesso depois que você definir uma meta e um prazo.</p>
+            <button class="btn btn--primary" data-nav-target="settings">Definir Objetivo</button>
+          </div>
+
+          <!-- CABEÇALHO DO OBJETIVO ATIVO -->
+          <div class="goal-header card" data-role="goal-header" hidden>
             <span class="hud-corner hud-corner--tl"></span>
             <span class="hud-corner hud-corner--tr"></span>
             <span class="hud-corner hud-corner--bl"></span>
             <span class="hud-corner hud-corner--br"></span>
-            <div class="day-score__ring" data-role="day-score-ring">
-              <svg viewBox="0 0 120 120" class="ring-svg">
-                <circle cx="60" cy="60" r="52" class="ring-svg__track"></circle>
-                <circle cx="60" cy="60" r="52" class="ring-svg__progress" data-role="day-score-progress"></circle>
-              </svg>
-              <div class="day-score__value">
-                <strong data-role="day-score-value">0%</strong>
-                <span>completo</span>
+
+            <header class="goal-header__top">
+              <div>
+                <span class="goal-header__eyebrow">
+                  <svg class="icon"><use href="#icon-target"></use></svg>
+                  Objetivo
+                </span>
+                <h3 class="goal-header__title" data-role="goal-title">—</h3>
+                <p class="goal-header__desc" data-role="goal-description"></p>
               </div>
-            </div>
-            <div class="day-score__breakdown" data-role="day-score-breakdown">
-              <!-- preenchido via JS: barra por pilar -->
+              <span class="goal-status-badge" data-role="goal-status-badge" data-status="on-track">No ritmo</span>
+            </header>
+
+            <div class="history-summary" data-role="goal-stats">
+              <div class="stat-card card">
+                <span class="stat-card__label">Dias restantes</span>
+                <strong class="stat-card__value" data-role="goal-days-remaining">—</strong>
+                <span class="stat-card__unit">de <span data-role="goal-total-days">—</span> dias</span>
+              </div>
+              <div class="stat-card card">
+                <span class="stat-card__label">Conclusão estimada</span>
+                <strong class="stat-card__value" data-role="goal-estimated-date">—</strong>
+                <span class="stat-card__unit" data-role="goal-date-delta">no prazo</span>
+              </div>
+              <div class="stat-card card">
+                <span class="stat-card__label">Taxa de execução real</span>
+                <strong class="stat-card__value" data-role="goal-execution-rate">0%</strong>
+                <span class="stat-card__unit">média do plano</span>
+              </div>
             </div>
           </div>
 
-          <!-- Grid de pilares do dia -->
+          <!-- PROBABILIDADE DE SUCESSO (gráfico preditivo principal) -->
+          <div class="day-score card probability-card" data-role="probability-card" hidden>
+            <span class="hud-corner hud-corner--tl"></span>
+            <span class="hud-corner hud-corner--tr"></span>
+            <span class="hud-corner hud-corner--bl"></span>
+            <span class="hud-corner hud-corner--br"></span>
+            <div class="day-score__ring" data-role="probability-ring">
+              <svg viewBox="0 0 120 120" class="ring-svg">
+                <circle cx="60" cy="60" r="52" class="ring-svg__track"></circle>
+                <circle cx="60" cy="60" r="52" class="ring-svg__progress" data-role="probability-progress"></circle>
+              </svg>
+              <div class="day-score__value">
+                <strong data-role="probability-value">0%</strong>
+                <span>probabilidade de sucesso</span>
+              </div>
+            </div>
+            <div class="day-score__breakdown" data-role="probability-breakdown">
+              <!-- preenchido via JS: contribuição de cada frente do Plano de Treinamento -->
+            </div>
+          </div>
+
+          <!-- DEFINIÇÃO MODULAR ATUAL + LINHA DO TEMPO -->
+          <div class="module-current card" data-role="module-current" hidden>
+            <span class="hud-corner hud-corner--tl"></span>
+            <span class="hud-corner hud-corner--br"></span>
+            <header class="module-current__header">
+              <svg class="icon"><use href="#icon-layers"></use></svg>
+              <h3>Definição Modular Atual</h3>
+              <span class="module-current__label" data-role="module-current-label">Módulo — de —</span>
+            </header>
+
+            <div class="module-progress">
+              <div class="module-progress__track">
+                <div class="module-progress__fill" data-role="module-progress-fill" style="width:0%"></div>
+              </div>
+              <span class="module-progress__pct" data-role="module-progress-pct">0%</span>
+            </div>
+
+            <ul class="module-timeline" data-role="module-timeline" aria-label="Linha do tempo dos módulos">
+              <!-- células de módulo geradas via JS -->
+            </ul>
+            <template id="tpl-module-chip">
+              <li class="module-chip" data-status="upcoming" tabindex="0">
+                <span class="module-chip__index"></span>
+                <span class="module-chip__range"></span>
+              </li>
+            </template>
+          </div>
+
+          <!-- PLANO DE TREINAMENTO DO MÓDULO ATUAL -->
+          <h3 class="section-title" data-role="training-plan-title" hidden>Plano de Treinamento — Módulo Atual</h3>
           <div class="pillars-grid" data-role="pillars-grid">
-            <!-- Cada pilar (Individual / Técnico / Humano) será renderizado aqui via JS,
-                 com sua lista de hábitos/tarefas do dia e checkboxes de conclusão -->
+            <!-- Cada frente (Individual / Técnico / Humano) do Plano de Treinamento
+                 será renderizada aqui via JS, com sua lista de itens do dia -->
             <template id="tpl-pillar-card">
               <article class="pillar-card card">
                 <span class="hud-corner hud-corner--tl"></span>
@@ -339,20 +438,20 @@
           </div>
 
           <div class="empty-state" data-role="dashboard-empty" hidden>
-            <p>Nenhuma tarefa configurada para os pilares ainda.</p>
-            <button class="btn btn--ghost" data-nav-target="settings">Configurar módulos</button>
+            <p>Nenhum item configurado no Plano de Treinamento ainda.</p>
+            <button class="btn btn--ghost" data-nav-target="settings">Configurar Plano de Treinamento</button>
           </div>
 
         </section>
 
         <!-- ============================================================
-             VIEW: HISTÓRICO GLOBAL / MAPA DE CALOR DE CONSISTÊNCIA
+             VIEW: HISTÓRICO DE EXECUÇÃO
              ============================================================ -->
         <section id="view-history" class="view view-history" data-view="history" hidden>
 
           <div class="history-summary">
             <div class="stat-card card">
-              <span class="stat-card__label">Sequência atual</span>
+              <span class="stat-card__label">Sequência de execução</span>
               <strong class="stat-card__value" data-role="stat-current-streak">0</strong>
               <span class="stat-card__unit">dias</span>
             </div>
@@ -362,9 +461,9 @@
               <span class="stat-card__unit">dias</span>
             </div>
             <div class="stat-card card">
-              <span class="stat-card__label">Consistência (90d)</span>
+              <span class="stat-card__label">Execução média (90d)</span>
               <strong class="stat-card__value" data-role="stat-consistency">0%</strong>
-              <span class="stat-card__unit">média</span>
+              <span class="stat-card__unit">do plano</span>
             </div>
           </div>
 
@@ -372,7 +471,7 @@
             <span class="hud-corner hud-corner--tl"></span>
             <span class="hud-corner hud-corner--tr"></span>
             <header class="heatmap__header">
-              <h3>Mapa de Consistência</h3>
+              <h3>Histórico de Execução do Plano de Treinamento</h3>
               <div class="heatmap__legend">
                 <span>Menos</span>
                 <span class="heatmap__swatch" data-level="0"></span>
@@ -383,7 +482,7 @@
                 <span>Mais</span>
               </div>
             </header>
-            <div class="heatmap__grid" data-role="heatmap-grid" role="img" aria-label="Mapa de calor de consistência dos últimos meses">
+            <div class="heatmap__grid" data-role="heatmap-grid" role="img" aria-label="Mapa de calor da execução do plano de treinamento nos últimos meses">
               <!-- células geradas via JS -->
             </div>
             <template id="tpl-heatmap-cell">
@@ -413,16 +512,57 @@
               </li>
             </template>
             <div class="empty-state" data-role="history-empty" hidden>
-              <p>Ainda não há histórico registrado. Volte ao Dashboard e complete suas tarefas do dia.</p>
+              <p>Ainda não há histórico registrado. Volte ao Painel Preditivo e execute o plano do dia.</p>
             </div>
           </div>
 
         </section>
 
         <!-- ============================================================
-             VIEW: CONFIGURAÇÕES (Escopo dos Módulos)
+             VIEW: CONFIGURAÇÕES
              ============================================================ -->
         <section id="view-settings" class="view view-settings" data-view="settings" hidden>
+
+          <!-- OBJETIVO & CRONOGRAMA — fonte única para criar/editar a meta -->
+          <div class="settings-section card" data-role="settings-goal">
+            <span class="hud-corner hud-corner--tl"></span>
+            <span class="hud-corner hud-corner--br"></span>
+            <header class="settings-section__header">
+              <svg class="icon"><use href="#icon-target"></use></svg>
+              <h3>Objetivo &amp; Cronograma</h3>
+            </header>
+            <p class="settings-section__desc">Esta é a meta que o Painel Preditivo usa para calcular a Probabilidade de Sucesso. Alterar o prazo recalcula toda a simulação.</p>
+
+            <div class="field">
+              <label for="goal-name" class="field__label">Nome do Objetivo</label>
+              <input type="text" id="goal-name" class="field__input" data-role="goal-name-input" placeholder="Ex.: Emagrecer 8kg com saúde">
+            </div>
+
+            <div class="field">
+              <label for="goal-description" class="field__label">Descrição (opcional)</label>
+              <textarea id="goal-description" class="field__input" data-role="goal-description-input" rows="3" placeholder="Detalhe o que define o sucesso dessa meta"></textarea>
+            </div>
+
+            <div class="field">
+              <label for="goal-duration" class="field__label">Tempo Estimado (dias)</label>
+              <input type="number" id="goal-duration" class="field__input" data-role="goal-duration-input" min="1" step="1" placeholder="Ex.: 90">
+            </div>
+
+            <div class="field">
+              <label for="goal-module-length" class="field__label">Duração da Definição Modular</label>
+              <select id="goal-module-length" class="field__input" data-role="goal-module-length-input">
+                <option value="14">Módulos de 14 dias</option>
+                <option value="30">Módulos de 30 dias</option>
+              </select>
+            </div>
+
+            <p class="settings-section__desc" data-role="goal-start-date-line" hidden>
+              <svg class="icon" style="width:14px;height:14px;vertical-align:-2px;"><use href="#icon-calendar"></use></svg>
+              Início da simulação: <strong data-role="goal-start-date-display">—</strong>
+            </p>
+
+            <button class="btn btn--primary" data-role="save-goal">Salvar Objetivo</button>
+          </div>
 
           <div class="settings-section card">
             <span class="hud-corner hud-corner--tl"></span>
@@ -440,21 +580,23 @@
             </div>
           </div>
 
+          <h3 class="section-title">Plano de Treinamento</h3>
+
           <div class="settings-section card" data-role="module-scope-individual">
             <span class="hud-corner hud-corner--tl"></span>
             <span class="hud-corner hud-corner--br"></span>
             <header class="settings-section__header settings-section__header--individual">
               <svg class="icon"><use href="#icon-individual"></use></svg>
-              <h3>Pilar Individual</h3>
+              <h3>Frente Individual</h3>
               <label class="switch">
                 <input type="checkbox" data-role="module-toggle" data-module="individual" checked>
                 <span class="switch__track"></span>
               </label>
             </header>
             <ul class="settings-tasklist" data-role="settings-tasklist" data-module="individual">
-              <!-- lista de tarefas configuráveis do pilar, gerada via JS -->
+              <!-- lista de itens configuráveis da frente, gerada via JS -->
             </ul>
-            <button class="btn btn--ghost btn--sm" data-role="add-task" data-module="individual">+ Adicionar tarefa</button>
+            <button class="btn btn--ghost btn--sm" data-role="add-task" data-module="individual">+ Adicionar item ao plano</button>
           </div>
 
           <div class="settings-section card" data-role="module-scope-tecnico">
@@ -462,14 +604,14 @@
             <span class="hud-corner hud-corner--br"></span>
             <header class="settings-section__header settings-section__header--tecnico">
               <svg class="icon"><use href="#icon-tecnico"></use></svg>
-              <h3>Pilar Técnico</h3>
+              <h3>Frente Técnica</h3>
               <label class="switch">
                 <input type="checkbox" data-role="module-toggle" data-module="tecnico" checked>
                 <span class="switch__track"></span>
               </label>
             </header>
             <ul class="settings-tasklist" data-role="settings-tasklist" data-module="tecnico"></ul>
-            <button class="btn btn--ghost btn--sm" data-role="add-task" data-module="tecnico">+ Adicionar tarefa</button>
+            <button class="btn btn--ghost btn--sm" data-role="add-task" data-module="tecnico">+ Adicionar item ao plano</button>
           </div>
 
           <div class="settings-section card" data-role="module-scope-humano">
@@ -477,20 +619,20 @@
             <span class="hud-corner hud-corner--br"></span>
             <header class="settings-section__header settings-section__header--humano">
               <svg class="icon"><use href="#icon-humano"></use></svg>
-              <h3>Pilar Humano</h3>
+              <h3>Frente Humana</h3>
               <label class="switch">
                 <input type="checkbox" data-role="module-toggle" data-module="humano" checked>
                 <span class="switch__track"></span>
               </label>
             </header>
             <ul class="settings-tasklist" data-role="settings-tasklist" data-module="humano"></ul>
-            <button class="btn btn--ghost btn--sm" data-role="add-task" data-module="humano">+ Adicionar tarefa</button>
+            <button class="btn btn--ghost btn--sm" data-role="add-task" data-module="humano">+ Adicionar item ao plano</button>
           </div>
 
           <template id="tpl-settings-task">
             <li class="settings-tasklist__item">
               <input type="text" class="settings-tasklist__input" value="">
-              <button type="button" class="settings-tasklist__remove" aria-label="Remover tarefa">&times;</button>
+              <button type="button" class="settings-tasklist__remove" aria-label="Remover item">&times;</button>
             </li>
           </template>
 
@@ -498,8 +640,8 @@
             <header class="settings-section__header">
               <h3>Zona de risco</h3>
             </header>
-            <p class="settings-section__desc">Esta ação apaga permanentemente todo o histórico salvo neste navegador.</p>
-            <button class="btn btn--danger" data-role="reset-data">Redefinir todos os dados</button>
+            <p class="settings-section__desc">Esta ação apaga permanentemente o Objetivo, o histórico de execução e restaura o Plano de Treinamento padrão.</p>
+            <button class="btn btn--danger" data-role="reset-data">Redefinir toda a simulação</button>
           </div>
 
         </section>
@@ -510,7 +652,7 @@
       <nav class="tabbar" aria-label="Navegação principal (mobile)">
         <button class="tabbar__link is-active" data-nav-target="dashboard">
           <svg class="icon"><use href="#icon-dashboard"></use></svg>
-          <span>Hoje</span>
+          <span>Painel</span>
         </button>
         <button class="tabbar__link" data-nav-target="history">
           <svg class="icon"><use href="#icon-history"></use></svg>
@@ -531,7 +673,7 @@
 
   <!-- ==========================================================
        SCRIPTS (ordem de dependência: config → storage → auth →
-       state → router → components → views → app)
+       state → router → views → app)
        ========================================================== -->
   <script src="js/config.js"></script>
   <script src="js/storage.js"></script>
