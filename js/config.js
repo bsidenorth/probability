@@ -30,6 +30,7 @@
     DB_USERS: 'planohit.db.users',
     DB_ENTRIES_PREFIX: 'planohit.db.entries.', // + userId
     DB_SETTINGS_PREFIX: 'planohit.db.settings.', // + userId
+    DB_GOAL_PREFIX: 'planohit.db.goal.', // + userId
   });
 
   /* ------------------------------------------------------------------
@@ -124,6 +125,27 @@
   const HEATMAP_WEEKS_VISIBLE = 18; // ~ 126 dias no grid do histórico
 
   /* ------------------------------------------------------------------
+     Motor preditivo — Simulador de Engenharia de Metas
+     ------------------------------------------------------------------ */
+  const GOAL_MODULE_LENGTH_OPTIONS = Object.freeze([14, 30]);
+  const GOAL_DEFAULT_MODULE_LENGTH = 30;
+
+  // Faixas de status derivadas da Probabilidade de Sucesso (0-100).
+  // "completed" é tratado à parte (progresso efetivo >= 100%).
+  const GOAL_STATUS_THRESHOLDS = Object.freeze({
+    ON_TRACK_MIN: 85,  // >= 85%  -> "No ritmo"
+    AT_RISK_MIN: 50,   // 50-84%  -> "Em risco"
+    // < 50%                       -> "Atrasado"
+  });
+
+  const GOAL_STATUS_LABELS = Object.freeze({
+    'on-track': 'No ritmo',
+    'at-risk': 'Em risco',
+    'behind': 'Atrasado',
+    'completed': 'Concluído',
+  });
+
+  /* ------------------------------------------------------------------
      Rotas / views internas da SPA
      ------------------------------------------------------------------ */
   const VIEWS = Object.freeze({
@@ -158,6 +180,10 @@
     DEFAULT_MODULE_SCOPE,
     HEATMAP_LEVELS,
     HEATMAP_WEEKS_VISIBLE,
+    GOAL_MODULE_LENGTH_OPTIONS,
+    GOAL_DEFAULT_MODULE_LENGTH,
+    GOAL_STATUS_THRESHOLDS,
+    GOAL_STATUS_LABELS,
     VIEWS,
     VIEW_META,
     DEFAULT_VIEW,

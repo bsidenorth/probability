@@ -218,12 +218,32 @@
   }
 
   /* ------------------------------------------------------------------
+     Objetivo & Cronograma (por usuário) — coração do motor preditivo
+     ------------------------------------------------------------------ */
+
+  function getGoal(userId) {
+    const key = KEYS.DB_GOAL_PREFIX + userId;
+    return readLocal(key, null);
+  }
+
+  function saveGoal(userId, goal) {
+    const key = KEYS.DB_GOAL_PREFIX + userId;
+    return writeLocal(key, goal);
+  }
+
+  function clearGoal(userId) {
+    const key = KEYS.DB_GOAL_PREFIX + userId;
+    return removeLocal(key);
+  }
+
+  /* ------------------------------------------------------------------
      Reset total dos dados de um usuário (Configurações > Zona de risco)
      ------------------------------------------------------------------ */
 
   function wipeUserData(userId) {
     removeLocal(KEYS.DB_SETTINGS_PREFIX + userId);
     removeLocal(KEYS.DB_ENTRIES_PREFIX + userId);
+    removeLocal(KEYS.DB_GOAL_PREFIX + userId);
   }
 
   /* ------------------------------------------------------------------
@@ -249,6 +269,10 @@
     // configurações
     getSettings,
     saveSettings,
+    // objetivo & cronograma
+    getGoal,
+    saveGoal,
+    clearGoal,
     // entradas diárias
     getAllEntries,
     saveAllEntries,

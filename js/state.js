@@ -31,7 +31,8 @@
     user: null,           // { id, name, email }
     settings: null,       // escopo de módulos/tarefas do usuário atual
     entries: {},          // cache em memória de todas as entradas (por dateKey)
-    selectedDate: startOfDay(new Date()), // data em foco no Dashboard
+    goal: null,           // Objetivo & Cronograma ativo (motor preditivo)
+    selectedDate: startOfDay(new Date()), // data em foco no Painel Preditivo
     currentView: CONFIG.DEFAULT_VIEW,
   };
 
@@ -91,6 +92,7 @@
     state.user = user;
     state.settings = Storage.getSettings(user.id) || JSON.parse(JSON.stringify(CONFIG.DEFAULT_MODULE_SCOPE));
     state.entries = Storage.getAllEntries(user.id) || {};
+    state.goal = Storage.getGoal(user.id) || null;
     state.selectedDate = startOfDay(new Date());
     state.currentView = CONFIG.DEFAULT_VIEW;
     notify('state:init', { user });
@@ -100,6 +102,7 @@
     state.user = null;
     state.settings = null;
     state.entries = {};
+    state.goal = null;
     state.selectedDate = startOfDay(new Date());
     state.currentView = CONFIG.DEFAULT_VIEW;
     notify('state:reset', {});
@@ -403,6 +406,266 @@
   }
 
   /* ------------------------------------------------------------------
+     Objetivo & Cronograma
+     ------------------------------------------------------------------ */
+
+  function getGoal() {
+    return state.goal;
+  }
+
+  /**
+   * Cria ou atualiza o Objetivo ativo. Ao CRIAR (nenhum goal existente),
+   * `startDate` é fixado em hoje — é o "dia zero" da simulação. Ao
+   * EDITAR um goal existente, o startDate original é preservado (mudar
+   * nome/descrição/prazo não reinicia a contagem já percorrida).
+   */
+  function saveGoal({ name, description, totalDays, moduleLengthDays }) {
+    const isNew = !state.goal;
+    const goal = {
+      name: String(name || '').trim(),
+      description: String(description || '').trim(),
+      totalDays: Math.max(1, Math.round(Number(totalDays) || 1)),
+      moduleLengthDays: Number(moduleLengthDays) || CONFIG.GOAL_DEFAULT_MODULE_LENGTH,
+      startDate: isNew ? toDateKey(new Date()) : state.goal.startDate,
+      createdAt: isNew ? new Date().toISOString() : state.goal.createdAt,
+      updatedAt: new Date().toISOString(),
+    };
+
+    state.goal = goal;
+    if (state.user) Storage.saveGoal(state.user.id, goal);
+    notify('goal:change', { goal });
+    return goal;
+  }
+
+  /* ------------------------------------------------------------------
+     Definições Modulares — divisão do prazo total em blocos de
+     `moduleLengthDays` (14 ou 30 dias).
+     ------------------------------------------------------------------ */
+
+  function getModules() {
+    if (!state.goal) return [];
+    const { totalDays, moduleLengthDays, startDate } = state.goal;
+    const moduleCount = Math.ceil(totalDays / moduleLengthDays);
+    const start = startOfDay(new Date(startDate + 'T00:00:00'));
+
+    const modules = [];
+    for (let i = 0; i < moduleCount; i++) {
+      const startOffset = i * moduleLengthDays;
+      const endOffset = Math.min(startOffset + moduleLengthDays - 1, totalDays - 1);
+      modules.push({
+        index: i + 1,
+        startOffset,
+        endOffset,
+        startDate: addDays(start, startOffset),
+        endDate: addDays(start, endOffset),
+      });
+    }
+    return modules;
+  }
+
+  function diffDays(a, b) {
+    return Math.round((startOfDay(b) - startOfDay(a)) / 86400000);
+  }
+
+  /**
+   * Média do score geral (0-100) de todos os dias entre `from` e `to`
+   * (inclusive). Dias sem registro contam como 0 — não executar o
+   * plano também é um dado real para o motor preditivo.
+   */
+  function averageScoreBetween(from, to) {
+    const start = startOfDay(from);
+    const end = startOfDay(to);
+    const totalDaysInRange = Math.max(diffDays(start, end) + 1, 1);
+    let sum = 0;
+    for (let i = 0; i < totalDaysInRange; i++) {
+      const day = addDays(start, i);
+      if (day > end) break;
+      sum += computeDayScore(getEntryForDate(day)).overall;
+    }
+    return sum / totalDaysInRange;
+  }
+
+  /**
+   * Taxa de execução real por frente (pilar), média desde o início do
+   * Objetivo até hoje. Frentes desabilitadas retornam `null` (não
+   * contam para a Probabilidade de Sucesso).
+   */
+  function computePillarExecutionRates(from, to) {
+    const start = startOfDay(from);
+    const end = startOfDay(to);
+    const totalDaysInRange = Math.max(diffDays(start, end) + 1, 1);
+
+    const sums = {};
+    const counts = {};
+    PILLAR_ORDER.forEach((p) => { sums[p] = 0; counts[p] = 0; });
+
+    for (let i = 0; i < totalDaysInRange; i++) {
+      const day = addDays(start, i);
+      if (day > end) break;
+      const { byPillar } = computeDayScore(getEntryForDate(day));
+      PILLAR_ORDER.forEach((p) => {
+        if (byPillar[p]) {
+          sums[p] += byPillar[p].pct;
+          counts[p] += 1;
+        }
+      });
+    }
+
+    const rates = {};
+    PILLAR_ORDER.forEach((p) => {
+      rates[p] = counts[p] > 0 ? Math.round(sums[p] / counts[p]) : null;
+    });
+    return rates;
+  }
+
+  /**
+   * ================================================================
+   * MOTOR PREDITIVO — Probabilidade de Sucesso
+   * ================================================================
+   * Modelo:
+   *   E  = dias decorridos desde o início (inclusive hoje)
+   *   R  = taxa de execução real média (0–1) nesses E dias
+   *   T  = tempo estimado total (dias)
+   *
+   *   progresso_efetivo   = E * R                     ("dias" de plano
+   *                                                     de fato executados)
+   *   trabalho_restante   = T − progresso_efetivo      (quanto ainda falta)
+   *   dias_restantes      = T − E                      (quanto tempo resta
+   *                                                     no prazo original)
+   *
+   *   ritmo_necessário    = trabalho_restante / dias_restantes
+   *                         (taxa de execução exigida DAQUI PRA FRENTE
+   *                          para ainda terminar no prazo original)
+   *
+   *   Probabilidade       = clamp( R / ritmo_necessário * 100, 0, 100 )
+   *                         → se o ritmo necessário sobe (porque você
+   *                           atrasou), e seu ritmo real não acompanha,
+   *                           a probabilidade cai.
+   *
+   *   Conclusão estimada  = projeta, ao ritmo real atual, quantos dias
+   *                         de calendário serão necessários para
+   *                         acumular T dias efetivos — se R cai, essa
+   *                         data se afasta dinamicamente.
+   * ================================================================
+   */
+  function computeGoalStats() {
+    if (!state.goal) {
+      return { hasGoal: false };
+    }
+
+    const goal = state.goal;
+    const today = startOfDay(new Date());
+    const start = startOfDay(new Date(goal.startDate + 'T00:00:00'));
+
+    const dayIndexToday = Math.max(diffDays(start, today), 0); // 0 = dia de início
+    const daysElapsed = dayIndexToday + 1;                      // dias já "vividos" (inclusive hoje)
+    const totalDays = goal.totalDays;
+    const remainingDaysOriginal = Math.max(totalDays - daysElapsed, 0);
+
+    const executionRatePct = averageScoreBetween(start, today);      // 0-100
+    const executionRate = executionRatePct / 100;                    // 0-1
+    const pillarRates = computePillarExecutionRates(start, today);
+
+    const effectiveProgressDays = daysElapsed * executionRate;
+    const isCompleted = effectiveProgressDays >= totalDays;
+
+    let probability;
+    let requiredRatePct = null;
+
+    if (isCompleted) {
+      probability = 100;
+    } else if (remainingDaysOriginal <= 0) {
+      // Prazo original estourou e a meta ainda não foi concluída.
+      probability = 0;
+      requiredRatePct = null;
+    } else {
+      const remainingEffectiveWork = totalDays - effectiveProgressDays;
+      const requiredRate = remainingEffectiveWork / remainingDaysOriginal; // pode ser > 1 (inviável)
+      requiredRatePct = Math.round(requiredRate * 100);
+      probability = requiredRate <= 0
+        ? 100
+        : Math.max(0, Math.min(100, Math.round((executionRate / requiredRate) * 100)));
+    }
+
+    // Data de conclusão projetada, ao ritmo real atual (dinâmica: piora
+    // se a taxa de execução cair, melhora se ela subir).
+    let projectedCompletionDate = null;
+    let projectedTotalCalendarDays = null;
+    if (!isCompleted && executionRate > 0.001) {
+      const remainingEffectiveWork = totalDays - effectiveProgressDays;
+      const projectedRemainingCalendarDays = remainingEffectiveWork / executionRate;
+      projectedTotalCalendarDays = daysElapsed + projectedRemainingCalendarDays;
+      projectedCompletionDate = addDays(start, Math.ceil(projectedTotalCalendarDays) - 1);
+    }
+
+    // Se já concluído, reconstrói em que dia real o progresso efetivo
+    // acumulado bateu o total — para exibir a data de conclusão real.
+    let actualCompletionDate = null;
+    if (isCompleted) {
+      let cumulative = 0;
+      for (let i = 0; i < daysElapsed; i++) {
+        const day = addDays(start, i);
+        cumulative += computeDayScore(getEntryForDate(day)).overall / 100;
+        if (cumulative >= totalDays) {
+          actualCompletionDate = day;
+          break;
+        }
+      }
+      if (!actualCompletionDate) actualCompletionDate = today;
+    }
+
+    let status;
+    if (isCompleted) {
+      status = 'completed';
+    } else if (probability >= CONFIG.GOAL_STATUS_THRESHOLDS.ON_TRACK_MIN) {
+      status = 'on-track';
+    } else if (probability >= CONFIG.GOAL_STATUS_THRESHOLDS.AT_RISK_MIN) {
+      status = 'at-risk';
+    } else {
+      status = 'behind';
+    }
+
+    // Definições Modulares — módulo atual e linha do tempo completa
+    const modules = getModules().map((m) => {
+      let moduleStatus = 'upcoming';
+      if (dayIndexToday > m.endOffset) moduleStatus = 'completed';
+      else if (dayIndexToday >= m.startOffset && dayIndexToday <= m.endOffset) moduleStatus = 'current';
+      return Object.assign({}, m, { status: moduleStatus });
+    });
+
+    const currentModule = modules.find((m) => m.status === 'current')
+      || modules[modules.length - 1]
+      || null;
+
+    let currentModuleProgressPct = 0;
+    if (currentModule) {
+      const moduleEnd = today < currentModule.endDate ? today : currentModule.endDate;
+      currentModuleProgressPct = Math.round(averageScoreBetween(currentModule.startDate, moduleEnd));
+    }
+
+    return {
+      hasGoal: true,
+      goal,
+      today,
+      daysElapsed,
+      totalDays,
+      remainingDaysOriginal,
+      executionRatePct: Math.round(executionRatePct),
+      pillarRates,
+      effectiveProgressDays,
+      isCompleted,
+      probability,
+      requiredRatePct,
+      projectedCompletionDate,
+      actualCompletionDate,
+      status,
+      modules,
+      currentModule,
+      currentModuleProgressPct,
+    };
+  }
+
+  /* ------------------------------------------------------------------
      Export
      ------------------------------------------------------------------ */
 
@@ -438,6 +701,11 @@
     computeConsistency,
     getHeatmapData,
     getRecentEntries,
+    // objetivo & motor preditivo
+    getGoal,
+    saveGoal,
+    getModules,
+    computeGoalStats,
     // usuário atual (somente leitura)
     getUser: () => state.user,
   };
