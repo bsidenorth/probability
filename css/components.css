@@ -242,6 +242,28 @@
   min-height: 1em;
 }
 
+.field__static {
+  padding: var(--space-3) 0 0;
+  font-size: var(--fs-base);
+  color: var(--color-text-dim);
+}
+
+.field__hint {
+  display: block;
+  font-size: var(--fs-xs);
+  color: var(--color-text-faint);
+  margin-top: 2px;
+  min-height: 1em;
+}
+
+.field__hint[data-state="locked"] {
+  color: var(--color-warning);
+}
+
+.field__hint[data-state="available"] {
+  color: var(--color-success);
+}
+
 .checkbox {
   display: flex;
   align-items: center;
