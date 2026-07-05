@@ -80,10 +80,11 @@
      ------------------------------------------------------------------ */
 
   function bindLogout() {
-    const logoutBtn = document.querySelector('[data-role="logout"]');
-    if (!logoutBtn) return;
-    logoutBtn.addEventListener('click', () => {
-      Auth.logout('manual');
+    const logoutBtns = document.querySelectorAll('[data-role="logout"]');
+    logoutBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        Auth.logout('manual');
+      });
     });
   }
 

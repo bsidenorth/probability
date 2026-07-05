@@ -218,22 +218,29 @@
   }
 
   /* ------------------------------------------------------------------
-     Objetivo & Cronograma (por usuário) — coração do motor preditivo
+     Objetivo & Cronograma (por usuário) — coração do motor preditivo.
+     Um usuário pode ter VÁRIOS Objetivos simultâneos; `activeGoalId`
+     guarda qual deles está em foco no Painel Preditivo.
      ------------------------------------------------------------------ */
 
-  function getGoal(userId) {
-    const key = KEYS.DB_GOAL_PREFIX + userId;
+  function getGoals(userId) {
+    const key = KEYS.DB_GOALS_PREFIX + userId;
+    return readLocal(key, []);
+  }
+
+  function saveGoals(userId, goals) {
+    const key = KEYS.DB_GOALS_PREFIX + userId;
+    return writeLocal(key, goals);
+  }
+
+  function getActiveGoalId(userId) {
+    const key = KEYS.DB_ACTIVE_GOAL_PREFIX + userId;
     return readLocal(key, null);
   }
 
-  function saveGoal(userId, goal) {
-    const key = KEYS.DB_GOAL_PREFIX + userId;
-    return writeLocal(key, goal);
-  }
-
-  function clearGoal(userId) {
-    const key = KEYS.DB_GOAL_PREFIX + userId;
-    return removeLocal(key);
+  function setActiveGoalId(userId, goalId) {
+    const key = KEYS.DB_ACTIVE_GOAL_PREFIX + userId;
+    return writeLocal(key, goalId);
   }
 
   /* ------------------------------------------------------------------
@@ -243,7 +250,8 @@
   function wipeUserData(userId) {
     removeLocal(KEYS.DB_SETTINGS_PREFIX + userId);
     removeLocal(KEYS.DB_ENTRIES_PREFIX + userId);
-    removeLocal(KEYS.DB_GOAL_PREFIX + userId);
+    removeLocal(KEYS.DB_GOALS_PREFIX + userId);
+    removeLocal(KEYS.DB_ACTIVE_GOAL_PREFIX + userId);
   }
 
   /* ------------------------------------------------------------------
@@ -269,10 +277,11 @@
     // configurações
     getSettings,
     saveSettings,
-    // objetivo & cronograma
-    getGoal,
-    saveGoal,
-    clearGoal,
+    // objetivo & cronograma (múltiplos objetivos)
+    getGoals,
+    saveGoals,
+    getActiveGoalId,
+    setActiveGoalId,
     // entradas diárias
     getAllEntries,
     saveAllEntries,

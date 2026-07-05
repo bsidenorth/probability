@@ -30,7 +30,8 @@
     DB_USERS: 'planohit.db.users',
     DB_ENTRIES_PREFIX: 'planohit.db.entries.', // + userId
     DB_SETTINGS_PREFIX: 'planohit.db.settings.', // + userId
-    DB_GOAL_PREFIX: 'planohit.db.goal.', // + userId
+    DB_GOALS_PREFIX: 'planohit.db.goals.', // + userId -> array de Objetivos
+    DB_ACTIVE_GOAL_PREFIX: 'planohit.db.activegoal.', // + userId -> string (goalId)
   });
 
   /* ------------------------------------------------------------------
@@ -40,6 +41,13 @@
     TOKEN_TTL_MS: 1000 * 60 * 60 * 8, // 8 horas de validade simulada
     TOKEN_ISSUER: 'planohit.local',
     MIN_PASSWORD_LENGTH: 6,
+  });
+
+  /* ------------------------------------------------------------------
+     Perfil do usuário
+     ------------------------------------------------------------------ */
+  const PROFILE_CONFIG = Object.freeze({
+    NAME_CHANGE_COOLDOWN_DAYS: 30,
   });
 
   /* ------------------------------------------------------------------
@@ -174,6 +182,7 @@
   PlanoHIT.CONFIG = Object.freeze({
     STORAGE_KEYS,
     AUTH_CONFIG,
+    PROFILE_CONFIG,
     PILLARS,
     PILLAR_META,
     PILLAR_ORDER,

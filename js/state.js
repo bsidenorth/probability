@@ -31,7 +31,8 @@
     user: null,           // { id, name, email }
     settings: null,       // escopo de módulos/tarefas do usuário atual
     entries: {},          // cache em memória de todas as entradas (por dateKey)
-    goal: null,           // Objetivo & Cronograma ativo (motor preditivo)
+    goals: [],            // TODOS os Objetivos cadastrados (motor preditivo)
+    activeGoalId: null,   // qual Objetivo está em foco no Painel Preditivo
     selectedDate: startOfDay(new Date()), // data em foco no Painel Preditivo
     currentView: CONFIG.DEFAULT_VIEW,
   };
@@ -92,7 +93,12 @@
     state.user = user;
     state.settings = Storage.getSettings(user.id) || JSON.parse(JSON.stringify(CONFIG.DEFAULT_MODULE_SCOPE));
     state.entries = Storage.getAllEntries(user.id) || {};
-    state.goal = Storage.getGoal(user.id) || null;
+    state.goals = Storage.getGoals(user.id) || [];
+
+    const storedActiveId = Storage.getActiveGoalId(user.id);
+    const hasStoredActive = storedActiveId && state.goals.some((g) => g.id === storedActiveId);
+    state.activeGoalId = hasStoredActive ? storedActiveId : (state.goals[0] ? state.goals[0].id : null);
+
     state.selectedDate = startOfDay(new Date());
     state.currentView = CONFIG.DEFAULT_VIEW;
     notify('state:init', { user });
@@ -102,7 +108,8 @@
     state.user = null;
     state.settings = null;
     state.entries = {};
-    state.goal = null;
+    state.goals = [];
+    state.activeGoalId = null;
     state.selectedDate = startOfDay(new Date());
     state.currentView = CONFIG.DEFAULT_VIEW;
     notify('state:reset', {});
@@ -406,45 +413,108 @@
   }
 
   /* ------------------------------------------------------------------
-     Objetivo & Cronograma
+     Objetivo & Cronograma — CRUD de múltiplos Objetivos
      ------------------------------------------------------------------ */
 
-  function getGoal() {
-    return state.goal;
+  function generateGoalId() {
+    return 'goal_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  }
+
+  function getGoals() {
+    return state.goals;
+  }
+
+  function getGoalById(goalId) {
+    return state.goals.find((g) => g.id === goalId) || null;
+  }
+
+  function getActiveGoalId() {
+    return state.activeGoalId;
+  }
+
+  function getActiveGoal() {
+    return state.activeGoalId ? getGoalById(state.activeGoalId) : null;
+  }
+
+  function persistGoals() {
+    if (state.user) Storage.saveGoals(state.user.id, state.goals);
+  }
+
+  function setActiveGoal(goalId) {
+    if (goalId !== null && !getGoalById(goalId)) return; // ignora id inexistente
+    state.activeGoalId = goalId;
+    if (state.user) Storage.setActiveGoalId(state.user.id, goalId);
+    notify('goal:change', { activeGoalId: goalId });
   }
 
   /**
-   * Cria ou atualiza o Objetivo ativo. Ao CRIAR (nenhum goal existente),
-   * `startDate` é fixado em hoje — é o "dia zero" da simulação. Ao
-   * EDITAR um goal existente, o startDate original é preservado (mudar
-   * nome/descrição/prazo não reinicia a contagem já percorrida).
+   * Cria um novo Objetivo. `startDate` é fixado no momento da criação —
+   * é o "dia zero" da simulação desse Objetivo específico. O Objetivo
+   * recém-criado passa a ser automaticamente o Objetivo ativo.
    */
-  function saveGoal({ name, description, totalDays, moduleLengthDays }) {
-    const isNew = !state.goal;
+  function createGoal({ name, description, totalDays, moduleLengthDays }) {
     const goal = {
+      id: generateGoalId(),
       name: String(name || '').trim(),
       description: String(description || '').trim(),
       totalDays: Math.max(1, Math.round(Number(totalDays) || 1)),
       moduleLengthDays: Number(moduleLengthDays) || CONFIG.GOAL_DEFAULT_MODULE_LENGTH,
-      startDate: isNew ? toDateKey(new Date()) : state.goal.startDate,
-      createdAt: isNew ? new Date().toISOString() : state.goal.createdAt,
+      startDate: toDateKey(new Date()),
+      createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
 
-    state.goal = goal;
-    if (state.user) Storage.saveGoal(state.user.id, goal);
-    notify('goal:change', { goal });
+    state.goals.push(goal);
+    persistGoals();
+    setActiveGoal(goal.id);
+    notify('goal:change', { goal, created: true });
     return goal;
   }
 
+  /**
+   * Atualiza um Objetivo existente. O `startDate` e `createdAt`
+   * originais são sempre preservados — editar nome/descrição/prazo
+   * não reinicia a contagem já percorrida.
+   */
+  function updateGoal(goalId, { name, description, totalDays, moduleLengthDays }) {
+    const goal = getGoalById(goalId);
+    if (!goal) return null;
+
+    goal.name = String(name || '').trim();
+    goal.description = String(description || '').trim();
+    goal.totalDays = Math.max(1, Math.round(Number(totalDays) || 1));
+    goal.moduleLengthDays = Number(moduleLengthDays) || CONFIG.GOAL_DEFAULT_MODULE_LENGTH;
+    goal.updatedAt = new Date().toISOString();
+
+    persistGoals();
+    notify('goal:change', { goal, created: false });
+    return goal;
+  }
+
+  function deleteGoal(goalId) {
+    const idx = state.goals.findIndex((g) => g.id === goalId);
+    if (idx === -1) return;
+
+    state.goals.splice(idx, 1);
+    persistGoals();
+
+    if (state.activeGoalId === goalId) {
+      setActiveGoal(state.goals[0] ? state.goals[0].id : null);
+    } else {
+      notify('goal:change', { deleted: goalId });
+    }
+  }
+
   /* ------------------------------------------------------------------
-     Definições Modulares — divisão do prazo total em blocos de
-     `moduleLengthDays` (14 ou 30 dias).
+     Definições Modulares — divisão do prazo total de UM Objetivo em
+     blocos de `moduleLengthDays` (14 ou 30 dias).
      ------------------------------------------------------------------ */
 
-  function getModules() {
-    if (!state.goal) return [];
-    const { totalDays, moduleLengthDays, startDate } = state.goal;
+  function getModules(goalId) {
+    const goal = getGoalById(goalId);
+    if (!goal) return [];
+
+    const { totalDays, moduleLengthDays, startDate } = goal;
     const moduleCount = Math.ceil(totalDays / moduleLengthDays);
     const start = startOfDay(new Date(startDate + 'T00:00:00'));
 
@@ -488,7 +558,9 @@
   /**
    * Taxa de execução real por frente (pilar), média desde o início do
    * Objetivo até hoje. Frentes desabilitadas retornam `null` (não
-   * contam para a Probabilidade de Sucesso).
+   * contam para a Probabilidade de Sucesso). Todos os Objetivos
+   * compartilham a mesma base de execução do Plano de Treinamento —
+   * cada um só recorta o período (startDate → hoje) que lhe interessa.
    */
   function computePillarExecutionRates(from, to) {
     const start = startOfDay(from);
@@ -520,40 +592,34 @@
 
   /**
    * ================================================================
-   * MOTOR PREDITIVO — Probabilidade de Sucesso
+   * MOTOR PREDITIVO — Probabilidade de Sucesso de UM Objetivo
    * ================================================================
-   * Modelo:
-   *   E  = dias decorridos desde o início (inclusive hoje)
+   * Modelo (idêntico para cada Objetivo, calculado independentemente
+   * a partir do próprio startDate/totalDays):
+   *
+   *   E  = dias decorridos desde o início desse Objetivo (inclusive hoje)
    *   R  = taxa de execução real média (0–1) nesses E dias
-   *   T  = tempo estimado total (dias)
+   *   T  = tempo estimado total desse Objetivo (dias)
    *
-   *   progresso_efetivo   = E * R                     ("dias" de plano
-   *                                                     de fato executados)
-   *   trabalho_restante   = T − progresso_efetivo      (quanto ainda falta)
-   *   dias_restantes      = T − E                      (quanto tempo resta
-   *                                                     no prazo original)
-   *
+   *   progresso_efetivo   = E * R
+   *   trabalho_restante   = T − progresso_efetivo
+   *   dias_restantes      = T − E
    *   ritmo_necessário    = trabalho_restante / dias_restantes
-   *                         (taxa de execução exigida DAQUI PRA FRENTE
-   *                          para ainda terminar no prazo original)
-   *
    *   Probabilidade       = clamp( R / ritmo_necessário * 100, 0, 100 )
-   *                         → se o ritmo necessário sobe (porque você
-   *                           atrasou), e seu ritmo real não acompanha,
-   *                           a probabilidade cai.
    *
    *   Conclusão estimada  = projeta, ao ritmo real atual, quantos dias
    *                         de calendário serão necessários para
-   *                         acumular T dias efetivos — se R cai, essa
-   *                         data se afasta dinamicamente.
+   *                         acumular T dias efetivos.
    * ================================================================
    */
-  function computeGoalStats() {
-    if (!state.goal) {
-      return { hasGoal: false };
+  function computeGoalStats(goalId) {
+    const targetId = goalId || state.activeGoalId;
+    const goal = targetId ? getGoalById(targetId) : null;
+
+    if (!goal) {
+      return { hasGoal: false, goalCount: state.goals.length };
     }
 
-    const goal = state.goal;
     const today = startOfDay(new Date());
     const start = startOfDay(new Date(goal.startDate + 'T00:00:00'));
 
@@ -575,31 +641,25 @@
     if (isCompleted) {
       probability = 100;
     } else if (remainingDaysOriginal <= 0) {
-      // Prazo original estourou e a meta ainda não foi concluída.
       probability = 0;
       requiredRatePct = null;
     } else {
       const remainingEffectiveWork = totalDays - effectiveProgressDays;
-      const requiredRate = remainingEffectiveWork / remainingDaysOriginal; // pode ser > 1 (inviável)
+      const requiredRate = remainingEffectiveWork / remainingDaysOriginal;
       requiredRatePct = Math.round(requiredRate * 100);
       probability = requiredRate <= 0
         ? 100
         : Math.max(0, Math.min(100, Math.round((executionRate / requiredRate) * 100)));
     }
 
-    // Data de conclusão projetada, ao ritmo real atual (dinâmica: piora
-    // se a taxa de execução cair, melhora se ela subir).
     let projectedCompletionDate = null;
-    let projectedTotalCalendarDays = null;
     if (!isCompleted && executionRate > 0.001) {
       const remainingEffectiveWork = totalDays - effectiveProgressDays;
       const projectedRemainingCalendarDays = remainingEffectiveWork / executionRate;
-      projectedTotalCalendarDays = daysElapsed + projectedRemainingCalendarDays;
+      const projectedTotalCalendarDays = daysElapsed + projectedRemainingCalendarDays;
       projectedCompletionDate = addDays(start, Math.ceil(projectedTotalCalendarDays) - 1);
     }
 
-    // Se já concluído, reconstrói em que dia real o progresso efetivo
-    // acumulado bateu o total — para exibir a data de conclusão real.
     let actualCompletionDate = null;
     if (isCompleted) {
       let cumulative = 0;
@@ -625,8 +685,7 @@
       status = 'behind';
     }
 
-    // Definições Modulares — módulo atual e linha do tempo completa
-    const modules = getModules().map((m) => {
+    const modules = getModules(goal.id).map((m) => {
       let moduleStatus = 'upcoming';
       if (dayIndexToday > m.endOffset) moduleStatus = 'completed';
       else if (dayIndexToday >= m.startOffset && dayIndexToday <= m.endOffset) moduleStatus = 'current';
@@ -662,7 +721,29 @@
       modules,
       currentModule,
       currentModuleProgressPct,
+      goalCount: state.goals.length,
     };
+  }
+
+  /**
+   * Resumo enxuto de TODOS os Objetivos (usado pelo seletor de chips
+   * no Painel e pela lista de Configurações) — evita recalcular o
+   * motor preditivo inteiro quando só o status/probabilidade básica
+   * de cada um é necessário para exibição em lista.
+   */
+  function getGoalsSummary() {
+    return state.goals.map((g) => {
+      const stats = computeGoalStats(g.id);
+      return {
+        id: g.id,
+        name: g.name,
+        status: stats.status,
+        probability: stats.probability,
+        daysElapsed: stats.daysElapsed,
+        totalDays: stats.totalDays,
+        isActive: g.id === state.activeGoalId,
+      };
+    });
   }
 
   /* ------------------------------------------------------------------
@@ -701,11 +782,18 @@
     computeConsistency,
     getHeatmapData,
     getRecentEntries,
-    // objetivo & motor preditivo
-    getGoal,
-    saveGoal,
+    // objetivo & motor preditivo (múltiplos objetivos)
+    getGoals,
+    getGoalById,
+    getActiveGoalId,
+    getActiveGoal,
+    setActiveGoal,
+    createGoal,
+    updateGoal,
+    deleteGoal,
     getModules,
     computeGoalStats,
+    getGoalsSummary,
     // usuário atual (somente leitura)
     getUser: () => state.user,
   };
