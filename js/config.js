@@ -156,9 +156,9 @@
   });
 
   const VIEW_META = Object.freeze({
-    [VIEWS.DASHBOARD]: { title: 'Dashboard do Dia', subtitle: 'Acompanhe sua performance de hoje' },
-    [VIEWS.HISTORY]: { title: 'Histórico Global', subtitle: 'Sua consistência ao longo do tempo' },
-    [VIEWS.SETTINGS]: { title: 'Configurações', subtitle: 'Escopo dos módulos e preferências' },
+    [VIEWS.DASHBOARD]: { title: 'Painel Preditivo', subtitle: 'Probabilidade de sucesso do seu objetivo, calculada em tempo real' },
+    [VIEWS.HISTORY]: { title: 'Histórico de Execução', subtitle: 'Sua consistência ao longo do tempo' },
+    [VIEWS.SETTINGS]: { title: 'Configurações', subtitle: 'Objetivo, cronograma e escopo do Plano de Treinamento' },
   });
 
   const DEFAULT_VIEW = VIEWS.DASHBOARD;
