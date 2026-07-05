@@ -526,3 +526,227 @@
   color: var(--color-danger);
   background: var(--color-danger-soft);
 }
+
+/* ------------------------------------------------------------------------
+   8. Cabeçalho do Objetivo ativo (Painel Preditivo)
+   ------------------------------------------------------------------------ */
+
+.goal-header {
+  margin-bottom: var(--space-5);
+}
+
+.goal-header__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-5);
+}
+
+.goal-header__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: var(--ls-wider);
+  color: var(--color-tecnico);
+  margin-bottom: var(--space-2);
+}
+
+.goal-header__eyebrow .icon {
+  width: 13px;
+  height: 13px;
+}
+
+.goal-header__title {
+  font-family: var(--font-display);
+  font-size: var(--fs-xl);
+  font-weight: 600;
+  line-height: var(--lh-tight);
+}
+
+.goal-header__desc {
+  margin-top: var(--space-2);
+  font-size: var(--fs-sm);
+  color: var(--color-text-dim);
+  max-width: 60ch;
+  line-height: var(--lh-relaxed);
+}
+
+.goal-status-badge {
+  flex-shrink: 0;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: var(--ls-wide);
+  white-space: nowrap;
+}
+
+.goal-status-badge[data-status="on-track"] {
+  background: var(--color-success-soft);
+  color: var(--color-success);
+  border: var(--border-width) solid var(--color-success);
+}
+
+.goal-status-badge[data-status="at-risk"] {
+  background: var(--color-warning-soft);
+  color: var(--color-warning);
+  border: var(--border-width) solid var(--color-warning);
+}
+
+.goal-status-badge[data-status="behind"] {
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+  border: var(--border-width) solid var(--color-danger);
+}
+
+.goal-status-badge[data-status="completed"] {
+  background: var(--color-tecnico-soft);
+  color: var(--color-tecnico);
+  border: var(--border-width) solid var(--color-tecnico);
+}
+
+/* ------------------------------------------------------------------------
+   9. Definição Modular atual + linha do tempo de módulos
+   ------------------------------------------------------------------------ */
+
+.module-current {
+  margin-bottom: var(--space-5);
+}
+
+.module-current__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.module-current__header .icon {
+  width: 18px;
+  height: 18px;
+  color: var(--color-tecnico);
+}
+
+.module-current__header h3 {
+  font-family: var(--font-display);
+  font-size: var(--fs-md);
+  font-weight: 600;
+  flex: 1;
+}
+
+.module-current__label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--color-text-dim);
+  background: var(--color-panel-raised);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  border: var(--border-width) solid var(--color-line);
+}
+
+.module-progress {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+
+.module-progress__track {
+  flex: 1;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--color-line-soft);
+  overflow: hidden;
+}
+
+.module-progress__fill {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--gradient-signal);
+  transition: width var(--duration-slow) var(--ease-out);
+}
+
+.module-progress__pct {
+  flex-shrink: 0;
+  width: 42px;
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--color-text-dim);
+}
+
+.module-timeline {
+  display: flex;
+  gap: var(--space-2);
+  overflow-x: auto;
+  padding-bottom: var(--space-2);
+}
+
+.module-chip {
+  flex-shrink: 0;
+  min-width: 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  border: var(--border-width) solid var(--color-line);
+  background: var(--color-panel-raised);
+  cursor: default;
+  transition: border-color var(--duration-base) var(--ease-out),
+              background var(--duration-base) var(--ease-out);
+}
+
+.module-chip__index {
+  font-family: var(--font-display);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--color-text-faint);
+}
+
+.module-chip__range {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-text-faint);
+  white-space: nowrap;
+}
+
+.module-chip[data-status="completed"] {
+  border-color: var(--color-success);
+  background: var(--color-success-soft);
+}
+
+.module-chip[data-status="completed"] .module-chip__index {
+  color: var(--color-success);
+}
+
+.module-chip[data-status="current"] {
+  border-color: var(--color-tecnico);
+  background: var(--color-tecnico-soft);
+  box-shadow: var(--shadow-glow-tecnico);
+}
+
+.module-chip[data-status="current"] .module-chip__index,
+.module-chip[data-status="current"] .module-chip__range {
+  color: var(--color-tecnico);
+}
+
+/* ------------------------------------------------------------------------
+   10. Título de seção genérico (ex.: "Plano de Treinamento")
+   ------------------------------------------------------------------------ */
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  margin-bottom: var(--space-4);
+  margin-top: var(--space-2);
+}
