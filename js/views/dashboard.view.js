@@ -36,6 +36,10 @@
       // Estado vazio (sem Objetivo)
       goalSetupEmpty: document.querySelector('[data-role="goal-setup-empty"]'),
 
+      // Seletor de Objetivos (quando há mais de um)
+      goalSwitcher: document.querySelector('[data-role="goal-switcher"]'),
+      tplGoalChip: document.getElementById('tpl-goal-chip'),
+
       // Cabeçalho do Objetivo
       goalHeader: document.querySelector('[data-role="goal-header"]'),
       goalTitle: document.querySelector('[data-role="goal-title"]'),
@@ -121,6 +125,42 @@
     el.dateToday.hidden = isToday;
     el.dateNext.disabled = isToday;
     el.dateNext.setAttribute('aria-disabled', String(isToday));
+  }
+
+  /* ------------------------------------------------------------------
+     Renderização — seletor de Objetivos (só aparece com 2+ objetivos)
+     ------------------------------------------------------------------ */
+
+  function renderGoalSwitcher() {
+    const summary = State.getGoalsSummary();
+
+    if (summary.length < 2) {
+      el.goalSwitcher.hidden = true;
+      el.goalSwitcher.innerHTML = '';
+      return;
+    }
+
+    el.goalSwitcher.hidden = false;
+    el.goalSwitcher.innerHTML = '';
+
+    summary.forEach((g) => {
+      const fragment = el.tplGoalChip.content.cloneNode(true);
+      const chip = fragment.querySelector('.goal-chip');
+      chip.textContent = g.name || 'Objetivo sem nome';
+      chip.setAttribute('data-goal-id', g.id);
+      chip.classList.toggle('is-active', g.isActive);
+      chip.setAttribute('aria-pressed', String(g.isActive));
+      el.goalSwitcher.appendChild(fragment);
+    });
+  }
+
+  function bindGoalSwitcher() {
+    el.goalSwitcher.addEventListener('click', (e) => {
+      const chip = e.target.closest('.goal-chip');
+      if (!chip) return;
+      const goalId = chip.getAttribute('data-goal-id');
+      State.setActiveGoal(goalId);
+    });
   }
 
   /* ------------------------------------------------------------------
@@ -318,6 +358,7 @@
 
     if (!stats.hasGoal) {
       el.goalSetupEmpty.hidden = false;
+      el.goalSwitcher.hidden = true;
       el.goalHeader.hidden = true;
       el.probabilityCard.hidden = true;
       el.moduleCurrent.hidden = true;
@@ -334,6 +375,7 @@
     el.moduleCurrent.hidden = false;
     el.trainingPlanTitle.hidden = false;
 
+    renderGoalSwitcher();
     renderGoalHeader(stats);
     renderProbability(stats);
     renderModule(stats);
@@ -398,6 +440,7 @@
   function init() {
     cacheDom();
     bindDateNav();
+    bindGoalSwitcher();
     bindStateEvents();
     bindViewEnter();
   }
