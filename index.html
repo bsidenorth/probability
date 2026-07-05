@@ -320,8 +320,17 @@
             <span class="hud-corner hud-corner--br"></span>
             <svg class="icon" style="width:32px;height:32px;"><use href="#icon-target"></use></svg>
             <p>Nenhum Objetivo definido ainda. O Painel Preditivo só calcula a Probabilidade de Sucesso depois que você definir uma meta e um prazo.</p>
+            <p style="font-size:var(--fs-xs);color:var(--color-text-faint);">Dica: em Configurações você também encontra uma explicação de como usar as frentes Individual, Técnica e Humana para estruturar seu plano.</p>
             <button class="btn btn--primary" data-nav-target="settings">Definir Objetivo</button>
           </div>
+
+          <!-- SELETOR DE OBJETIVOS: alterna qual meta está em foco no Painel -->
+          <div class="goal-switcher" data-role="goal-switcher" hidden>
+            <!-- chips gerados via JS, um por Objetivo cadastrado -->
+          </div>
+          <template id="tpl-goal-chip">
+            <button type="button" class="goal-chip" data-goal-id=""></button>
+          </template>
 
           <!-- CABEÇALHO DO OBJETIVO ATIVO -->
           <div class="goal-header card" data-role="goal-header" hidden>
@@ -523,7 +532,7 @@
              ============================================================ -->
         <section id="view-settings" class="view view-settings" data-view="settings" hidden>
 
-          <!-- OBJETIVO & CRONOGRAMA — fonte única para criar/editar a meta -->
+          <!-- OBJETIVO & CRONOGRAMA — suporta múltiplos objetivos -->
           <div class="settings-section card" data-role="settings-goal">
             <span class="hud-corner hud-corner--tl"></span>
             <span class="hud-corner hud-corner--br"></span>
@@ -531,7 +540,32 @@
               <svg class="icon"><use href="#icon-target"></use></svg>
               <h3>Objetivo &amp; Cronograma</h3>
             </header>
-            <p class="settings-section__desc">Esta é a meta que o Painel Preditivo usa para calcular a Probabilidade de Sucesso. Alterar o prazo recalcula toda a simulação.</p>
+            <p class="settings-section__desc">Cada Objetivo tem seu próprio prazo e Definições Modulares — todos usam a mesma taxa de execução do Plano de Treinamento para calcular a Probabilidade de Sucesso. Você pode acompanhar quantos objetivos quiser ao mesmo tempo.</p>
+
+            <ul class="goals-list" data-role="goals-list">
+              <!-- objetivos cadastrados, gerados via JS -->
+            </ul>
+            <p class="settings-section__desc" data-role="goals-empty">Nenhum Objetivo criado ainda — use o formulário abaixo para adicionar o primeiro.</p>
+            <template id="tpl-goal-item">
+              <li class="goal-list-item" data-goal-id="">
+                <div class="goal-list-item__main">
+                  <strong class="goal-list-item__name"></strong>
+                  <span class="goal-list-item__meta"></span>
+                </div>
+                <span class="goal-list-item__badge" data-status=""></span>
+                <div class="goal-list-item__actions">
+                  <button type="button" class="btn btn--ghost btn--sm" data-action="select">Ver no Painel</button>
+                  <button type="button" class="btn btn--ghost btn--sm" data-action="edit">Editar</button>
+                  <button type="button" class="btn btn--ghost btn--sm" data-action="delete" aria-label="Excluir objetivo">Excluir</button>
+                </div>
+              </li>
+            </template>
+
+            <div class="goal-form-divider">
+              <span data-role="goal-form-mode-label">Novo Objetivo</span>
+              <button type="button" class="btn btn--ghost btn--sm" data-role="new-goal">+ Adicionar novo Objetivo</button>
+              <button type="button" class="btn btn--ghost btn--sm" data-role="cancel-goal-edit" hidden>Cancelar edição</button>
+            </div>
 
             <div class="field">
               <label for="goal-name" class="field__label">Nome do Objetivo</label>
@@ -564,6 +598,39 @@
             <button class="btn btn--primary" data-role="save-goal">Salvar Objetivo</button>
           </div>
 
+          <!-- INTRODUÇÃO: o que são as 3 frentes do Plano de Treinamento -->
+          <div class="settings-section card info-card" data-role="pillars-intro">
+            <span class="hud-corner hud-corner--tl"></span>
+            <span class="hud-corner hud-corner--br"></span>
+            <header class="settings-section__header">
+              <h3>Como estruturar seu Plano de Treinamento</h3>
+            </header>
+            <p class="settings-section__desc">Todo Objetivo é sustentado por três frentes complementares. Entenda o papel de cada uma antes de montar suas tarefas — a Probabilidade de Sucesso é calculada a partir da execução real delas:</p>
+            <ul class="pillars-intro-list">
+              <li class="pillars-intro-list__item pillars-intro-list__item--individual">
+                <svg class="icon"><use href="#icon-individual"></use></svg>
+                <div>
+                  <strong>Individual</strong>
+                  <span>Corpo, disciplina e hábitos pessoais.</span>
+                </div>
+              </li>
+              <li class="pillars-intro-list__item pillars-intro-list__item--tecnico">
+                <svg class="icon"><use href="#icon-tecnico"></use></svg>
+                <div>
+                  <strong>Técnico</strong>
+                  <span>Estudo, prática deliberada e execução.</span>
+                </div>
+              </li>
+              <li class="pillars-intro-list__item pillars-intro-list__item--humano">
+                <svg class="icon"><use href="#icon-humano"></use></svg>
+                <div>
+                  <strong>Humano</strong>
+                  <span>Relações, mentalidade e recuperação.</span>
+                </div>
+              </li>
+            </ul>
+          </div>
+
           <div class="settings-section card">
             <span class="hud-corner hud-corner--tl"></span>
             <span class="hud-corner hud-corner--br"></span>
@@ -573,11 +640,13 @@
             <div class="field">
               <label for="settings-name" class="field__label">Nome</label>
               <input type="text" id="settings-name" class="field__input" data-role="settings-name">
+              <span class="field__hint" data-role="name-cooldown-hint"></span>
             </div>
             <div class="field">
-              <label for="settings-email" class="field__label">E-mail</label>
-              <input type="email" id="settings-email" class="field__input" data-role="settings-email" disabled>
+              <span class="field__label">E-mail</span>
+              <p class="field__static" data-role="settings-email">—</p>
             </div>
+            <button class="btn btn--ghost" data-role="logout">Sair da conta</button>
           </div>
 
           <h3 class="section-title">Plano de Treinamento</h3>
