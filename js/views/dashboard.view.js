@@ -1,12 +1,12 @@
 /**
  * ==========================================================================
- * PLANO HIT — VIEW: DASHBOARD DO DIA
- * Renderiza a navegação temporal, o anel de score geral, o breakdown
- * por pilar e o grid de cards de pilares com suas tarefas do dia
- * selecionado. Também mantém atualizados dois elementos "de chrome"
- * que vivem fora desta view (chips de pilar na Sidebar e o badge de
- * streak no header), já que ambos refletem o progresso de HOJE
- * independentemente de qual data está sendo navegada no Dashboard.
+ * PLANO HIT — VIEW: PAINEL PREDITIVO (ex-"Dashboard do Dia")
+ * Renderiza o Objetivo ativo, a Probabilidade de Sucesso (gráfico
+ * preditivo principal), a Definição Modular atual (com linha do tempo)
+ * e o Plano de Treinamento do módulo em curso. Também mantém
+ * atualizado o "chrome" persistente (chips de pilar na Sidebar e o
+ * badge de sequência no header), que sempre reflete o dia de HOJE
+ * independentemente da data navegada no Painel.
  * ==========================================================================
  */
 
@@ -25,18 +25,50 @@
   function cacheDom() {
     el = {
       section: document.getElementById('view-dashboard'),
+
+      // Navegação temporal
       datePrev: document.querySelector('[data-role="date-prev"]'),
       dateNext: document.querySelector('[data-role="date-next"]'),
       dateToday: document.querySelector('[data-role="date-today"]'),
       dateLabel: document.querySelector('[data-role="date-label"]'),
       dateFull: document.querySelector('[data-role="date-full"]'),
-      scoreValue: document.querySelector('[data-role="day-score-value"]'),
-      scoreProgress: document.querySelector('[data-role="day-score-progress"]'),
-      scoreBreakdown: document.querySelector('[data-role="day-score-breakdown"]'),
+
+      // Estado vazio (sem Objetivo)
+      goalSetupEmpty: document.querySelector('[data-role="goal-setup-empty"]'),
+
+      // Cabeçalho do Objetivo
+      goalHeader: document.querySelector('[data-role="goal-header"]'),
+      goalTitle: document.querySelector('[data-role="goal-title"]'),
+      goalDescription: document.querySelector('[data-role="goal-description"]'),
+      goalStatusBadge: document.querySelector('[data-role="goal-status-badge"]'),
+      goalDaysRemaining: document.querySelector('[data-role="goal-days-remaining"]'),
+      goalTotalDays: document.querySelector('[data-role="goal-total-days"]'),
+      goalEstimatedDate: document.querySelector('[data-role="goal-estimated-date"]'),
+      goalDateDelta: document.querySelector('[data-role="goal-date-delta"]'),
+      goalExecutionRate: document.querySelector('[data-role="goal-execution-rate"]'),
+
+      // Probabilidade de Sucesso
+      probabilityCard: document.querySelector('[data-role="probability-card"]'),
+      probabilityValue: document.querySelector('[data-role="probability-value"]'),
+      probabilityProgress: document.querySelector('[data-role="probability-progress"]'),
+      probabilityBreakdown: document.querySelector('[data-role="probability-breakdown"]'),
+
+      // Definição Modular atual
+      moduleCurrent: document.querySelector('[data-role="module-current"]'),
+      moduleCurrentLabel: document.querySelector('[data-role="module-current-label"]'),
+      moduleProgressFill: document.querySelector('[data-role="module-progress-fill"]'),
+      moduleProgressPct: document.querySelector('[data-role="module-progress-pct"]'),
+      moduleTimeline: document.querySelector('[data-role="module-timeline"]'),
+      tplModuleChip: document.getElementById('tpl-module-chip'),
+
+      // Plano de Treinamento
+      trainingPlanTitle: document.querySelector('[data-role="training-plan-title"]'),
       pillarsGrid: document.querySelector('[data-role="pillars-grid"]'),
       emptyState: document.querySelector('[data-role="dashboard-empty"]'),
       tplPillarCard: document.getElementById('tpl-pillar-card'),
       tplPillarTask: document.getElementById('tpl-pillar-task'),
+
+      // Chrome persistente
       streakCount: document.querySelector('[data-role="streak-count"]'),
       pillarChipValues: {
         individual: document.querySelector('[data-pillar-value="individual"]'),
@@ -51,26 +83,29 @@
      ------------------------------------------------------------------ */
 
   const fullDateFormatter = new Intl.DateTimeFormat('pt-BR', {
-    weekday: 'long',
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
+    weekday: 'long', day: '2-digit', month: 'long', year: 'numeric',
   });
+  const shortDateFormatter = new Intl.DateTimeFormat('pt-BR', {
+    day: '2-digit', month: 'short', year: 'numeric',
+  });
+  const moduleRangeFormatter = new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit' });
 
   function daysBetween(a, b) {
-    const msPerDay = 86400000;
     const da = new Date(a); da.setHours(0, 0, 0, 0);
     const db = new Date(b); db.setHours(0, 0, 0, 0);
-    return Math.round((db - da) / msPerDay);
+    return Math.round((db - da) / 86400000);
   }
 
   function getDateLabel(date) {
-    const today = new Date();
-    const diff = daysBetween(date, today);
+    const diff = daysBetween(date, new Date());
     if (diff === 0) return 'Hoje';
     if (diff === 1) return 'Ontem';
     if (diff === -1) return 'Amanhã';
     return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short' }).format(date);
+  }
+
+  function capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
   }
 
   /* ------------------------------------------------------------------
@@ -88,49 +123,117 @@
     el.dateNext.setAttribute('aria-disabled', String(isToday));
   }
 
-  function capitalize(str) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
+  /* ------------------------------------------------------------------
+     Renderização — cabeçalho do Objetivo
+     ------------------------------------------------------------------ */
+
+  function renderGoalHeader(stats) {
+    el.goalTitle.textContent = stats.goal.name || 'Objetivo sem nome';
+
+    if (stats.goal.description) {
+      el.goalDescription.textContent = stats.goal.description;
+      el.goalDescription.hidden = false;
+    } else {
+      el.goalDescription.hidden = true;
+    }
+
+    el.goalStatusBadge.setAttribute('data-status', stats.status);
+    el.goalStatusBadge.textContent = CONFIG.GOAL_STATUS_LABELS[stats.status];
+
+    el.goalDaysRemaining.textContent = String(stats.remainingDaysOriginal);
+    el.goalTotalDays.textContent = String(stats.totalDays);
+    el.goalExecutionRate.textContent = `${stats.executionRatePct}%`;
+
+    const originalDeadline = new Date(stats.currentModule ? stats.modules[stats.modules.length - 1].endDate : stats.today);
+
+    if (stats.isCompleted) {
+      el.goalEstimatedDate.textContent = shortDateFormatter.format(stats.actualCompletionDate);
+      el.goalDateDelta.textContent = 'meta concluída';
+    } else if (stats.projectedCompletionDate) {
+      el.goalEstimatedDate.textContent = shortDateFormatter.format(stats.projectedCompletionDate);
+      const delta = daysBetween(originalDeadline, stats.projectedCompletionDate);
+      if (delta <= 0) {
+        el.goalDateDelta.textContent = 'dentro do prazo';
+      } else {
+        el.goalDateDelta.textContent = `+${delta} dia${delta > 1 ? 's' : ''} de atraso projetado`;
+      }
+    } else {
+      el.goalEstimatedDate.textContent = '—';
+      el.goalDateDelta.textContent = 'sem execução suficiente para projetar';
+    }
   }
 
   /* ------------------------------------------------------------------
-     Renderização — anel de score + breakdown por pilar
+     Renderização — Probabilidade de Sucesso (gráfico preditivo)
      ------------------------------------------------------------------ */
 
-  function renderScore() {
-    const { overall, byPillar } = State.getSelectedDayScore();
+  function renderProbability(stats) {
+    el.probabilityValue.textContent = `${stats.probability}%`;
 
-    el.scoreValue.textContent = `${overall}%`;
+    const offset = RING_CIRCUMFERENCE - (stats.probability / 100) * RING_CIRCUMFERENCE;
+    el.probabilityProgress.style.strokeDasharray = String(RING_CIRCUMFERENCE);
+    el.probabilityProgress.style.strokeDashoffset = String(offset);
 
-    const offset = RING_CIRCUMFERENCE - (overall / 100) * RING_CIRCUMFERENCE;
-    el.scoreProgress.style.strokeDasharray = String(RING_CIRCUMFERENCE);
-    el.scoreProgress.style.strokeDashoffset = String(offset);
-    el.scoreProgress.style.stroke = overall === 100
-      ? 'var(--color-success)'
-      : 'var(--color-tecnico)';
+    const colorByStatus = {
+      completed: 'var(--color-success)',
+      'on-track': 'var(--color-success)',
+      'at-risk': 'var(--color-warning)',
+      behind: 'var(--color-danger)',
+    };
+    el.probabilityProgress.style.stroke = colorByStatus[stats.status] || 'var(--color-tecnico)';
 
-    el.scoreBreakdown.innerHTML = '';
+    el.probabilityBreakdown.innerHTML = '';
     PILLAR_ORDER.forEach((pillarId) => {
-      const pillarData = byPillar[pillarId];
-      if (!pillarData) return; // pilar desabilitado ou sem tarefas — fora da média
+      const pct = stats.pillarRates[pillarId];
+      if (pct === null || pct === undefined) return; // frente desabilitada
 
       const row = document.createElement('div');
       row.className = `breakdown-row breakdown-row--${pillarId}`;
       row.innerHTML = `
         <span class="breakdown-row__label">${PILLAR_META[pillarId].label}</span>
         <span class="breakdown-row__track">
-          <span class="breakdown-row__fill" style="width:${pillarData.pct}%"></span>
+          <span class="breakdown-row__fill" style="width:${pct}%"></span>
         </span>
-        <span class="breakdown-row__pct">${pillarData.pct}%</span>
+        <span class="breakdown-row__pct">${pct}%</span>
       `;
-      el.scoreBreakdown.appendChild(row);
+      el.probabilityBreakdown.appendChild(row);
     });
   }
 
   /* ------------------------------------------------------------------
-     Renderização — grid de cards de pilar
+     Renderização — Definição Modular atual + linha do tempo
      ------------------------------------------------------------------ */
 
-  function renderPillarsGrid() {
+  function renderModule(stats) {
+    if (!stats.currentModule) return;
+
+    el.moduleCurrentLabel.textContent =
+      `Módulo ${stats.currentModule.index} de ${stats.modules.length} · Dias ${stats.currentModule.startOffset + 1}–${stats.currentModule.endOffset + 1}`;
+
+    el.moduleProgressFill.style.width = `${stats.currentModuleProgressPct}%`;
+    el.moduleProgressPct.textContent = `${stats.currentModuleProgressPct}%`;
+
+    el.moduleTimeline.innerHTML = '';
+    stats.modules.forEach((mod) => {
+      const fragment = el.tplModuleChip.content.cloneNode(true);
+      const chip = fragment.querySelector('.module-chip');
+      chip.setAttribute('data-status', mod.status);
+      chip.querySelector('.module-chip__index').textContent = `M${mod.index}`;
+      chip.querySelector('.module-chip__range').textContent =
+        `${moduleRangeFormatter.format(mod.startDate)}–${moduleRangeFormatter.format(mod.endDate)}`;
+      chip.setAttribute(
+        'aria-label',
+        `Módulo ${mod.index}, dias ${mod.startOffset + 1} a ${mod.endOffset + 1}, status ${CONFIG.GOAL_STATUS_LABELS[mod.status] || mod.status}`
+      );
+      el.moduleTimeline.appendChild(fragment);
+    });
+  }
+
+  /* ------------------------------------------------------------------
+     Renderização — grid do Plano de Treinamento (checklist do dia)
+     ------------------------------------------------------------------ */
+
+  function renderTrainingPlanGrid() {
     const settings = State.getSettings();
     const selectedDate = State.getSelectedDate();
     const entry = State.getEntryForDate(selectedDate);
@@ -155,9 +258,7 @@
       const card = cardFragment.querySelector('.pillar-card');
       card.classList.add(`pillar-card--${pillarId}`);
 
-      const icon = card.querySelector('.pillar-card__icon use');
-      icon.setAttribute('href', meta.icon);
-
+      card.querySelector('.pillar-card__icon use').setAttribute('href', meta.icon);
       card.querySelector('.pillar-card__title').textContent = meta.label;
       card.querySelector('.pillar-card__progress').textContent = `${doneCount}/${cfg.tasks.length}`;
 
@@ -172,7 +273,7 @@
 
         const checkBtn = item.querySelector('.task-item__check');
         checkBtn.setAttribute('aria-pressed', String(isDone));
-        checkBtn.setAttribute('aria-label', `Marcar "${task.label}" como ${isDone ? 'não concluída' : 'concluída'}`);
+        checkBtn.setAttribute('aria-label', `Marcar "${task.label}" como ${isDone ? 'não concluído' : 'concluído'}`);
         checkBtn.addEventListener('click', () => {
           State.toggleTask(pillarId, task.id);
         });
@@ -186,8 +287,7 @@
 
   /* ------------------------------------------------------------------
      Renderização — "chrome" persistente (chips de pilar + streak)
-     Sempre reflete o dia de HOJE, independentemente da data navegada
-     no Dashboard, pois vive na Sidebar/Header globais.
+     Sempre reflete o dia de HOJE, independentemente da data navegada.
      ------------------------------------------------------------------ */
 
   function renderChrome() {
@@ -213,8 +313,31 @@
 
   function render() {
     renderDateNav();
-    renderScore();
-    renderPillarsGrid();
+
+    const stats = State.computeGoalStats();
+
+    if (!stats.hasGoal) {
+      el.goalSetupEmpty.hidden = false;
+      el.goalHeader.hidden = true;
+      el.probabilityCard.hidden = true;
+      el.moduleCurrent.hidden = true;
+      el.trainingPlanTitle.hidden = true;
+      el.pillarsGrid.hidden = true;
+      el.emptyState.hidden = true;
+      renderChrome();
+      return;
+    }
+
+    el.goalSetupEmpty.hidden = true;
+    el.goalHeader.hidden = false;
+    el.probabilityCard.hidden = false;
+    el.moduleCurrent.hidden = false;
+    el.trainingPlanTitle.hidden = false;
+
+    renderGoalHeader(stats);
+    renderProbability(stats);
+    renderModule(stats);
+    renderTrainingPlanGrid();
     renderChrome();
   }
 
@@ -228,23 +351,28 @@
     el.dateToday.addEventListener('click', () => State.goToToday());
   }
 
+  function isDashboardVisible() {
+    return el.section && !el.section.hidden;
+  }
+
   function bindStateEvents() {
     State.subscribe((eventName) => {
       switch (eventName) {
         case 'date:change':
-          renderDateNav();
-          renderScore();
-          renderPillarsGrid();
+          if (isDashboardVisible()) {
+            renderDateNav();
+            const stats = State.computeGoalStats();
+            if (stats.hasGoal) renderTrainingPlanGrid();
+          }
           break;
         case 'entry:change':
-          renderScore();
-          renderPillarsGrid();
           renderChrome();
+          if (isDashboardVisible()) render();
           break;
         case 'settings:change':
-          renderScore();
-          renderPillarsGrid();
-          renderChrome();
+        case 'goal:change':
+          if (isDashboardVisible()) render();
+          else renderChrome();
           break;
         case 'state:init':
           renderChrome();

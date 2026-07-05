@@ -33,6 +33,14 @@
       resetButton: document.querySelector('[data-role="reset-data"]'),
       sidebarUserName: document.querySelector('[data-role="user-name"]'),
       sidebarUserEmail: document.querySelector('[data-role="user-email"]'),
+      // Objetivo & Cronograma
+      goalNameInput: document.querySelector('[data-role="goal-name-input"]'),
+      goalDescriptionInput: document.querySelector('[data-role="goal-description-input"]'),
+      goalDurationInput: document.querySelector('[data-role="goal-duration-input"]'),
+      goalModuleLengthInput: document.querySelector('[data-role="goal-module-length-input"]'),
+      goalStartDateLine: document.querySelector('[data-role="goal-start-date-line"]'),
+      goalStartDateDisplay: document.querySelector('[data-role="goal-start-date-display"]'),
+      saveGoalButton: document.querySelector('[data-role="save-goal"]'),
     };
   }
 
@@ -44,6 +52,68 @@
     if (global.PlanoHIT.Toast && typeof global.PlanoHIT.Toast.show === 'function') {
       global.PlanoHIT.Toast.show(message, variant);
     }
+  }
+
+  /* ------------------------------------------------------------------
+     Objetivo & Cronograma
+     ------------------------------------------------------------------ */
+
+  const startDateFormatter = new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+
+  function renderGoalForm() {
+    const goal = State.getGoal();
+
+    if (!goal) {
+      el.goalNameInput.value = '';
+      el.goalDescriptionInput.value = '';
+      el.goalDurationInput.value = '';
+      el.goalModuleLengthInput.value = String(CONFIG.GOAL_DEFAULT_MODULE_LENGTH);
+      el.goalStartDateLine.hidden = true;
+      el.saveGoalButton.textContent = 'Salvar Objetivo';
+      return;
+    }
+
+    el.goalNameInput.value = goal.name;
+    el.goalDescriptionInput.value = goal.description || '';
+    el.goalDurationInput.value = String(goal.totalDays);
+    el.goalModuleLengthInput.value = String(goal.moduleLengthDays);
+
+    el.goalStartDateLine.hidden = false;
+    el.goalStartDateDisplay.textContent = startDateFormatter.format(new Date(goal.startDate + 'T00:00:00'));
+    el.saveGoalButton.textContent = 'Atualizar Objetivo';
+  }
+
+  function bindGoalForm() {
+    el.saveGoalButton.addEventListener('click', () => {
+      const name = el.goalNameInput.value.trim();
+      const totalDays = parseInt(el.goalDurationInput.value, 10);
+
+      if (!name) {
+        toast('Dê um nome ao seu Objetivo antes de salvar.', 'danger');
+        el.goalNameInput.focus();
+        return;
+      }
+      if (!totalDays || totalDays < 1) {
+        toast('Informe um Tempo Estimado válido (em dias).', 'danger');
+        el.goalDurationInput.focus();
+        return;
+      }
+
+      const wasEditing = !!State.getGoal();
+
+      State.saveGoal({
+        name,
+        description: el.goalDescriptionInput.value.trim(),
+        totalDays,
+        moduleLengthDays: parseInt(el.goalModuleLengthInput.value, 10),
+      });
+
+      renderGoalForm();
+      toast(
+        wasEditing ? 'Objetivo atualizado — simulação recalculada.' : 'Objetivo definido! Acompanhe a Probabilidade de Sucesso no Painel Preditivo.',
+        'success'
+      );
+    });
   }
 
   /* ------------------------------------------------------------------
@@ -205,6 +275,7 @@
      ------------------------------------------------------------------ */
 
   function render() {
+    renderGoalForm();
     renderProfile();
     renderModuleToggles();
     renderAllTaskLists();
@@ -247,6 +318,7 @@
 
   function init() {
     cacheDom();
+    bindGoalForm();
     bindProfileForm();
     bindModuleToggles();
     bindAddTaskButtons();
